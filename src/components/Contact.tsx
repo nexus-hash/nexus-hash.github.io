@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { Check, Copy, Github, Linkedin } from "lucide-react";
 import { contact } from "../data/resume";
 import SectionHead from "./SectionHead";
@@ -25,7 +25,7 @@ export default function Contact() {
         sub="Open to conversations about distributed systems, payments infrastructure, and agentic AI."
       />
 
-      <motion.div
+      <m.div
         className="contact-inner"
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -56,7 +56,7 @@ export default function Contact() {
             <Linkedin size={15} /> LinkedIn
           </a>
         </div>
-      </motion.div>
+      </m.div>
     </section>
   );
 }

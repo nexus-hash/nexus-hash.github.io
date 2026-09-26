@@ -34,7 +34,7 @@ export const experience: ExperienceEntry[] = [
         dates: "Jul 2025 — Present",
         bullets: [
           "Contributed to an AI triage and RCA pipeline processing 1M+ logs/sec, drastically cutting production incident MTTR.",
-          "Designed and built a distributed, seamlessly integrating, developer-facing RAG platform with hybrid search, reducing org-wide token spend by 15%.",
+          "Designed and built a distributed, developer-facing RAG platform with hybrid search, reducing org-wide token spend by 15%.",
           "Migrated Visa's 2 largest payment gateways to multithreaded microservices, accelerating settlement by 10x.",
           "Automated multi-tier security vulnerability remediation across 100+ repositories using agentic AI workflows with minimal developer overhead.",
         ],
@@ -53,6 +53,7 @@ export const experience: ExperienceEntry[] = [
       {
         title: "Software Development Intern",
         stack: "Java · Vert.x · SQL",
+        dates: "Jan 2023 — Jun 2023",
         bullets: [
           "Developed an on-demand settlement generation API that decoupled Visa support workflows from engineering, cutting delivery time for custom requests.",
         ],
@@ -143,12 +144,33 @@ export const skills: SkillCluster[] = [
   },
 ];
 
-export const project = {
-  name: "Dimensys",
-  tagline: "Next.js · 3D spatial UI · System design",
-  description:
-    "An interactive interview-preparation platform built on Next.js, using 3D spatial demonstrations to make complex High-Level Design, Low-Level Design, and DSA problems tangible instead of abstract.",
-};
+export interface Project {
+  id: string;
+  name: string;
+  tagline: string;
+  description: string;
+  stack: string[];
+  live?: string;
+  repo?: string;
+  /** Path under /public — shown as a framed screenshot in the project card. */
+  image?: string;
+  status: "live" | "wip" | "archived";
+}
+
+export const projects: Project[] = [
+  {
+    id: "dimensys",
+    name: "Dimensys",
+    tagline: "Don't read about system design. Break it.",
+    description:
+      "An interactive interview-preparation platform that turns High-Level Design, Low-Level Design, and DSA problems into 3D spatial simulations you can poke at — real architectures, simulated, instead of static diagrams.",
+    stack: ["Next.js", "TypeScript", "3D spatial UI", "System design"],
+    live: "https://dimensys.vercel.app",
+    repo: "https://github.com/nexus-hash/dimensys",
+    image: "dimensys.jpg",
+    status: "live",
+  },
+];
 
 export const education = {
   school: "Vellore Institute of Technology",
@@ -158,12 +180,30 @@ export const education = {
 
 export const heroStats = [
   { value: "10x", label: "settlement throughput" },
-  { value: "1M+", label: "logs processed / sec" },
-  { value: "100+", label: "repos automated via AI" },
+  { value: "100M+", label: "payment events / day" },
+  { value: "450", label: "engineering days saved via AI" },
+];
+
+/** Phrases cycled by the hero typewriter. */
+export const heroRoles = [
+  "distributed payment systems",
+  "agentic AI pipelines",
+  "Kafka event platforms",
+  "developer-facing RAG tooling",
 ];
 
 export const contact = {
   email: "srtsoumya21@gmail.com",
   github: "https://github.com/nexus-hash",
   linkedin: "https://linkedin.com/in/nexus-hash",
+  /** Shown in the nav clock so visitors see *your* local time, not theirs. */
+  timezone: { iana: "Asia/Kolkata", label: "IST" },
+};
+
+export const site = {
+  url: "https://nexus-hash.github.io",
+  name: "Soumya Ranjan Tripathy",
+  title: "Soumya Ranjan Tripathy — Backend Engineer",
+  description:
+    "Backend engineer building distributed payment infrastructure and agentic AI systems at Visa.",
 };

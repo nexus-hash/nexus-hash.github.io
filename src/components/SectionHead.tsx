@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 
 interface Props {
   index: string;
@@ -8,7 +8,7 @@ interface Props {
 
 export default function SectionHead({ index, title, sub }: Props) {
   return (
-    <motion.div
+    <m.div
       className="section-head"
       initial={{ opacity: 0, y: 18 }}
       whileInView={{ opacity: 1, y: 0 }}
@@ -18,6 +18,6 @@ export default function SectionHead({ index, title, sub }: Props) {
       <p className="section-index">{`// ${index}`}</p>
       <h2>{title}</h2>
       {sub && <p className="section-sub">{sub}</p>}
-    </motion.div>
+    </m.div>
   );
 }

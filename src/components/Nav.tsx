@@ -1,7 +1,9 @@
-import { useState } from "react";
-import { AnimatePresence, motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
+import { AnimatePresence, m } from "framer-motion";
+import { Terminal } from "lucide-react";
 import { contact } from "../data/resume";
 import { useActiveSection } from "../hooks/useActiveSection";
+import { useIsMac } from "../hooks/useIsMac";
 import LiveClock from "./LiveClock";
 
 const links = [
@@ -10,14 +12,38 @@ const links = [
   { id: "skills", label: "skills" },
   { id: "contact", label: "contact" },
 ];
+const linkIds = links.map((l) => l.id);
 
-export default function Nav() {
+interface Props {
+  onOpenPalette: () => void;
+}
+
+export default function Nav({ onOpenPalette }: Props) {
   const [menuOpen, setMenuOpen] = useState(false);
-  const active = useActiveSection(links.map((l) => l.id));
+  const active = useActiveSection(linkIds);
+  const isMac = useIsMac();
+  const navRef = useRef<HTMLElement>(null);
+
+  // Close the mobile menu on Escape or on a tap/click outside the nav.
+  useEffect(() => {
+    if (!menuOpen) return;
+    function onKey(e: KeyboardEvent) {
+      if (e.key === "Escape") setMenuOpen(false);
+    }
+    function onPointer(e: PointerEvent) {
+      if (navRef.current && !navRef.current.contains(e.target as Node)) setMenuOpen(false);
+    }
+    document.addEventListener("keydown", onKey);
+    document.addEventListener("pointerdown", onPointer);
+    return () => {
+      document.removeEventListener("keydown", onKey);
+      document.removeEventListener("pointerdown", onPointer);
+    };
+  }, [menuOpen]);
 
   return (
-    <header className="nav">
-      <nav className="nav-inner">
+    <header className="nav" ref={navRef}>
+      <nav className="nav-inner" aria-label="Primary">
         <a className="nav-brand" href="#top" aria-label="Back to top">
           <span className="nav-mark" aria-hidden="true">
             <svg width="22" height="22" viewBox="0 0 22 22" fill="none">
@@ -41,7 +67,11 @@ export default function Nav() {
         <ul className="nav-links">
           {links.map((link) => (
             <li key={link.id}>
-              <a href={`#${link.id}`} className={active === link.id ? "active" : ""}>
+              <a
+                href={`#${link.id}`}
+                className={active === link.id ? "active" : ""}
+                aria-current={active === link.id ? "location" : undefined}
+              >
                 {link.label}
               </a>
             </li>
@@ -50,14 +80,25 @@ export default function Nav() {
 
         <LiveClock />
 
+        <button className="nav-kbd" onClick={onOpenPalette} aria-label="Open command palette">
+          <Terminal size={13} aria-hidden="true" />
+          <kbd>{isMac ? "⌘" : "Ctrl"}</kbd>
+          <kbd>K</kbd>
+        </button>
+
         <a className="nav-cta" href={`mailto:${contact.email}`}>
           say_hello
         </a>
+
+        <button className="nav-palette-mobile" onClick={onOpenPalette} aria-label="Open command palette">
+          <Terminal size={16} aria-hidden="true" />
+        </button>
 
         <button
           className={`nav-toggle${menuOpen ? " is-open" : ""}`}
           aria-label="Toggle menu"
           aria-expanded={menuOpen}
+          aria-controls="nav-mobile-menu"
           onClick={() => setMenuOpen((v) => !v)}
         >
           <span />
@@ -67,7 +108,8 @@ export default function Nav() {
 
         <AnimatePresence>
           {menuOpen && (
-            <motion.ul
+            <m.ul
+              id="nav-mobile-menu"
               className="nav-mobile-menu"
               initial={{ height: 0, opacity: 0 }}
               animate={{ height: "auto", opacity: 1 }}
@@ -85,7 +127,7 @@ export default function Nav() {
                   </a>
                 </li>
               ))}
-            </motion.ul>
+            </m.ul>
           )}
         </AnimatePresence>
       </nav>

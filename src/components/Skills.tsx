@@ -1,6 +1,7 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { AnimatePresence, m } from "framer-motion";
 import { useState } from "react";
 import { skills } from "../data/resume";
+import { useCardGlow } from "../hooks/useCardGlow";
 import SectionHead from "./SectionHead";
 
 function toKey(title: string): string {
@@ -13,18 +14,26 @@ function toKey(title: string): string {
 
 export default function Skills() {
   const [expanded, setExpanded] = useState<Record<number, boolean>>({});
+  const glow = useCardGlow();
 
   return (
     <section className="section skills" id="skills">
       <SectionHead index="03" title="Skills" sub="The stack behind the systems above." />
 
-      <motion.div
-        className="skills-manifest"
+      <m.div
+        className="skills-manifest glow"
+        onPointerMove={glow}
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
         viewport={{ once: true, margin: "-10% 0px" }}
         transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
       >
+        <div className="project-panel-bar">
+          <span />
+          <span />
+          <span />
+          <span className="project-panel-bar-label">skills.toml</span>
+        </div>
         {skills.map((cluster, i) => {
           const isOpen = Boolean(expanded[i]);
           return (
@@ -39,7 +48,7 @@ export default function Skills() {
                 <AnimatePresence>
                   {isOpen &&
                     cluster.extra?.map((skill) => (
-                      <motion.span
+                      <m.span
                         className="skill-value"
                         key={skill}
                         initial={{ opacity: 0 }}
@@ -48,7 +57,7 @@ export default function Skills() {
                         transition={{ duration: 0.2 }}
                       >
                         {skill}
-                      </motion.span>
+                      </m.span>
                     ))}
                 </AnimatePresence>
                 {cluster.extra && cluster.extra.length > 0 && (
@@ -64,7 +73,7 @@ export default function Skills() {
             </div>
           );
         })}
-      </motion.div>
+      </m.div>
     </section>
   );
 }

@@ -1,4 +1,4 @@
-import { motion } from "framer-motion";
+import { m } from "framer-motion";
 import { education } from "../data/resume";
 import SectionHead from "./SectionHead";
 
@@ -7,7 +7,7 @@ export default function Education() {
     <section className="section education" id="education">
       <SectionHead index="04" title="Education" />
 
-      <motion.div
+      <m.div
         className="edu-row"
         initial={{ opacity: 0, y: 18 }}
         whileInView={{ opacity: 1, y: 0 }}
@@ -20,7 +20,7 @@ export default function Education() {
           <p className="exp-role">{education.degree}</p>
           <p className="exp-dates">{education.dates}</p>
         </div>
-      </motion.div>
+      </m.div>
     </section>
   );
 }
