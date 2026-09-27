@@ -1019,11 +1019,11 @@ kbd {
    the statement clips its own overflow for the rise-in, which would cut a text-shadow into bands. */
 @media (min-width: 720px) {
   .hero h1 { filter: drop-shadow(0 0 26px color-mix(in srgb, var(--accent) 30%, transparent)); }
-  .section-head h2, .contact h2 { filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 26%, transparent)); }
+  .section-head h2, .contact h2, .feature-title h3 { filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 26%, transparent)); }
 
   /* Tables and panels are solid and sit on top of the light, so it never shows through
      them. The spread keeps their text clear of the lit area around them. */
-  .ledger, .os, .manifest, .feature-body, .contact-grid {
+  .ledger, .os, .manifest, .contact-grid {
     position: relative;
     background: var(--paper);
     box-shadow: 0 0 0 clamp(14px, 1.8vw, 26px) var(--paper);
