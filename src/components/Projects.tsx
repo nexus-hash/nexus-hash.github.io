@@ -42,8 +42,8 @@ export default function Projects() {
                       alt={`Screenshot of ${project.name}`}
                       loading="lazy"
                       decoding="async"
-                      width={1280}
-                      height={800}
+                      width={3200}
+                      height={1800}
                     />
                   </div>
                   <span className="feature-shot-tag" aria-hidden="true">

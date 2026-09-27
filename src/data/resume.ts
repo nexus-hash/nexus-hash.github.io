@@ -302,17 +302,18 @@ export const flowStages = [
 
 /**
  * The train on the right-hand rail: the engine plus one coach per section.
- * `id` is the section's element id. `screen` is what the coach projects onto,
- * title included: its two right-hand corners anchor the beam. `tuck` names a
- * rounded box inside it, if any, so the light can slide under its corners.
+ * `id` is the section's element id. `screen` is the content the coach is wired
+ * to: its two right-hand corners anchor the beam, and the rays carry on across
+ * the page from there, which is what lights the title above it. `tuck` names a
+ * rounded box, if any, so the light can slide under its corners.
  */
 export const trainStops: { id: string; name: string; screen: string; tuck?: string }[] = [
   { id: "top", name: "Soumya", screen: "#top .wrap" },
   { id: "impact", name: "Impact", screen: "#impact .wrap" },
-  { id: "experience", name: "Experience", screen: "#experience .wrap", tuck: "#experience .trace" },
-  { id: "projects", name: "Projects", screen: "#projects .wrap", tuck: "#projects .feature-shot" },
-  { id: "open-source", name: "Open source", screen: "#open-source .wrap" },
-  { id: "skills", name: "Skills", screen: "#skills .wrap" },
+  { id: "experience", name: "Experience", screen: "#experience .trace", tuck: "#experience .trace" },
+  { id: "projects", name: "Projects", screen: "#projects .feature", tuck: "#projects .feature-shot" },
+  { id: "open-source", name: "Open source", screen: "#open-source .os" },
+  { id: "skills", name: "Skills", screen: "#skills .manifest" },
   { id: "contact", name: "Contact", screen: "#contact .wrap" },
 ];
 
