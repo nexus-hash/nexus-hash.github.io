@@ -10,7 +10,7 @@ import Ledger from "./Ledger";
 // `headline.statement` (used as the accessible label).
 const LINES: ReactNode[] = [
   <>
-    I move <em>money</em>
+    I help move <em>money</em>
   </>,
   <>at scale, and build</>,
   <>

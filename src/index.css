@@ -34,7 +34,20 @@
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
   --max-w: 1240px;
   --gutter: clamp(20px, 5vw, 64px);
+  /* train rail: car width, track width, and the space the dock reserves on the right */
+  --car: clamp(46px, 4.4vw, 70px);
+  --trackw: calc(var(--car) * 1.5);
+  --bay: 0px;
+  --baygap: 0px;
+  --dock: 0px;
+  --bar-h: 61px;
   color-scheme: light;
+}
+@media (min-width: 720px) {
+  :root { --dock: calc(var(--trackw) + 10px); }
+}
+@media (min-width: 1100px) {
+  :root { --bay: 148px; --baygap: 40px; --dock: calc(var(--trackw) + var(--baygap) + var(--bay) + 18px); }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -98,6 +111,7 @@ button { font: inherit; color: inherit; background: none; border: none; cursor: 
 img { max-width: 100%; }
 
 body {
+  padding-right: var(--dock);
   background: var(--paper);
   color: var(--ink);
   font-family: var(--font-body);
@@ -193,6 +207,7 @@ kbd {
   backdrop-filter: blur(14px) saturate(1.2);
   -webkit-backdrop-filter: blur(14px) saturate(1.2);
   border-bottom: 1px solid var(--rule);
+  padding-right: var(--dock);
 }
 .bar-inner { height: 60px; display: flex; align-items: center; gap: 24px; }
 .bar-name { font-family: var(--font-display); font-size: 1.1875rem; letter-spacing: -0.01em; white-space: nowrap; }
@@ -296,7 +311,7 @@ kbd {
   font-size: clamp(2.75rem, 8.2vw, 7rem);
   line-height: 0.98;
   letter-spacing: -0.035em;
-  max-width: 15ch;
+  max-width: 18ch;
 }
 .hero h1 em { font-style: italic; color: var(--accent); }
 .hero h1 .line { display: block; overflow: hidden; padding-bottom: 0.08em; }
@@ -333,7 +348,7 @@ kbd {
   margin-bottom: 28px;
 }
 .flow-caption b { color: var(--accent); font-weight: 500; }
-.flow-body { position: relative; }
+.flow-body { position: relative; overflow-x: clip; padding-block: 6px; margin-block: -6px; }
 .flow-track {
   position: absolute;
   left: 6px;
@@ -866,3 +881,116 @@ kbd {
 .palette-foot { display: flex; gap: 18px; padding: 10px 18px; border-top: 1px solid var(--rule); font-size: 0.75rem; color: var(--ink-3); }
 .palette-foot span { display: inline-flex; align-items: center; gap: 4px; }
 .palette-esc { flex-shrink: 0; }
+
+/* ==========================================================================
+   TRAIN RAIL — fixed maglev guideway on the right edge, train seen from above.
+   The dock is always dark so the white train reads in both themes.
+   ========================================================================== */
+.rail {
+  --sig: #8ea0ff;
+  --sig-soft: rgba(142, 160, 255, 0.14);
+  --sig-glow: rgba(142, 160, 255, 0.55);
+  --slab: #131311;
+  --deep: #0a0a09;
+  --bone: #f2efe7;
+  display: none;
+  position: fixed;
+  z-index: 40;
+  top: var(--bar-h);
+  right: 0;
+  bottom: 0;
+  width: var(--dock);
+  overflow: hidden;
+  pointer-events: none;
+}
+@media (min-width: 720px) { .rail { display: block; } }
+
+.rail-track {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  right: 0;
+  width: var(--trackw);
+  background: var(--deep);
+  box-shadow: -1px 0 0 rgba(242, 239, 231, 0.12), -24px 0 50px -20px rgba(0, 0, 0, 0.55);
+}
+.rail-track svg { position: absolute; inset: 0; display: block; }
+.gw-slab { fill: var(--slab); }
+.gw-channel { fill: var(--deep); }
+.gw-motor { fill: var(--deep); stroke: rgba(242, 239, 231, 0.08); }
+.gw-inner { stroke: rgba(242, 239, 231, 0.16); stroke-width: 1; fill: none; }
+.gw-tie { stroke: rgba(242, 239, 231, 0.2); stroke-width: 1; fill: none; }
+.gw-tie-half { stroke: rgba(242, 239, 231, 0.09); }
+.gw-node { fill: var(--sig); }
+.gw-chev { stroke: var(--sig); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; animation: gw-pulse 2.4s ease-in-out infinite; }
+.gw-chev-1 { animation-delay: 0s; }
+.gw-chev-2 { animation-delay: 0.3s; }
+.gw-chev-3 { animation-delay: 0.6s; }
+@keyframes gw-pulse { 0%, 100% { opacity: 0.16; } 45% { opacity: 0.95; } }
+/* the two glowing guide rails along the channel edges */
+.rail-guide {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 2px;
+  background: var(--sig);
+  box-shadow: 0 0 10px 1px var(--sig-glow), 0 0 26px 2px var(--sig-soft);
+}
+.rail-guide-l { left: calc(var(--trackw) * 9 / 96); }
+.rail-guide-r { right: calc(var(--trackw) * 9 / 96); }
+
+.rail-train {
+  position: absolute;
+  top: 0;
+  overflow: visible;
+  will-change: transform;
+  filter: drop-shadow(5px 9px 10px rgba(0, 0, 0, 0.8));
+}
+.rail-car { pointer-events: auto; cursor: pointer; }
+.rail-glass { stroke: #151513; stroke-width: 4.6; stroke-dasharray: 21 4; fill: none; }
+.rail-stripe { stroke: var(--sig); stroke-width: 1.8; fill: none; }
+.rail-tag { font-family: var(--font-body); font-size: 11px; font-weight: 600; fill: #3a3a36; letter-spacing: 0.04em; }
+.rail-livery { font-family: var(--font-body); font-size: 14px; font-weight: 700; fill: #3a3a36; letter-spacing: 0.14em; }
+.rail-window { fill: var(--sig); opacity: 0.22; transition: opacity 0.35s var(--ease); }
+.rail-car.is-on .rail-window { opacity: 1; filter: drop-shadow(0 0 5px var(--sig)); }
+.rail-charge-0 { stop-color: var(--sig); stop-opacity: 0.42; }
+.rail-charge-1 { stop-color: var(--sig); stop-opacity: 0; }
+
+/* the cone of light from the window, and the card it lands on */
+.rail-beam {
+  position: absolute;
+  top: 0;
+  right: var(--face);
+  width: calc(var(--trackw) + var(--baygap) - var(--face) + 2px);
+  height: 132px;
+  clip-path: polygon(0 0, 100% calc(50% - var(--win) / 2), 100% calc(50% + var(--win) / 2), 0 100%);
+  background: linear-gradient(to right, var(--sig-soft), var(--sig-glow));
+  will-change: transform, opacity;
+}
+.rail-card {
+  position: absolute;
+  top: 0;
+  right: calc(var(--trackw) + var(--baygap));
+  width: var(--bay);
+  min-height: 132px;
+  padding: 16px 16px 14px;
+  display: grid;
+  align-content: center;
+  gap: 4px;
+  border: 1px solid var(--sig);
+  border-radius: 12px;
+  background: linear-gradient(to left, #1b1b18, #0f0f0d);
+  color: var(--bone);
+  box-shadow: 0 0 0 1px var(--sig-soft), 0 18px 50px -18px var(--sig-glow);
+  will-change: transform, opacity;
+}
+.rail-card-name { font-family: var(--font-display); font-size: 1.375rem; line-height: 1.1; letter-spacing: -0.01em; animation: rail-swap 0.45s var(--ease); }
+.rail-card-note { font-size: 0.8125rem; line-height: 1.35; color: rgba(242, 239, 231, 0.7); }
+.rail-card-count { margin-top: 6px; font-family: var(--font-mono); font-size: 0.6875rem; color: var(--sig); }
+@keyframes rail-swap { from { opacity: 0; transform: translateY(6px); } }
+@media (max-width: 1099px) {
+  .rail-card, .rail-beam { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gw-chev { animation: none; opacity: 0.6; }
+}

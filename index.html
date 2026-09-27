@@ -6,13 +6,12 @@
     <meta name="color-scheme" content="light dark" />
     <meta name="theme-color" content="#f5f2ea" />
     <script>
-      // Apply a stored theme choice before first paint (no flash). Without one, CSS follows the system.
+      // Apply the theme before first paint (no flash). Dark is the default; the toggle stores a choice.
       try {
         var t = localStorage.getItem("theme");
-        if (t === "light" || t === "dark") {
-          document.documentElement.dataset.theme = t;
-          if (t === "dark") document.querySelector('meta[name="theme-color"]').setAttribute("content", "#0f0f0d");
-        }
+        if (t !== "light" && t !== "dark") t = "dark"; // dark unless the visitor chose light
+        document.documentElement.dataset.theme = t;
+        if (t === "dark") document.querySelector('meta[name="theme-color"]').setAttribute("content", "#0f0f0d");
       } catch (e) {}
     </script>
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
@@ -31,7 +30,7 @@
     <meta property="og:title" content="Soumya Ranjan Tripathy — Backend Engineer" />
     <meta
       property="og:description"
-      content="I build the infrastructure that moves money and the agents that watch it. Payments infrastructure and agentic AI at Visa."
+      content="I help build the infrastructure that moves money and the agents that watch it. Payments infrastructure and agentic AI at Visa."
     />
     <meta property="og:url" content="https://nexus-hash.github.io/" />
     <meta property="og:image" content="https://nexus-hash.github.io/og.png" />
@@ -44,7 +43,7 @@
     <meta name="twitter:title" content="Soumya Ranjan Tripathy — Backend Engineer" />
     <meta
       name="twitter:description"
-      content="I build the infrastructure that moves money and the agents that watch it. Payments infrastructure and agentic AI at Visa."
+      content="I help build the infrastructure that moves money and the agents that watch it. Payments infrastructure and agentic AI at Visa."
     />
     <meta name="twitter:image" content="https://nexus-hash.github.io/og.png" />
 

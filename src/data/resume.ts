@@ -2,9 +2,9 @@ export interface ExperienceRole {
   title: string;
   stack: string;
   dates?: string;
-  /** "YYYY-MM". Drives the span position in the career trace. */
+  /** "YYYY-MM" or "YYYY-MM-DD". Drives the span position in the career trace. */
   start: string;
-  /** "YYYY-MM"; omit for a role that is still running. */
+  /** "YYYY-MM" (through the end of that month) or "YYYY-MM-DD"; omit for a role that is still running. */
   end?: string;
   bullets: string[];
 }
@@ -48,7 +48,7 @@ export const experience: ExperienceEntry[] = [
         title: "Software Engineer",
         stack: "Vert.x · Spring · Kafka · SQL",
         dates: "Jun 2023 — Jun 2025",
-        start: "2023-06",
+        start: "2023-06-13",
         end: "2025-06",
         bullets: [
           "Worked on the PACE agentic platform, automating 20% of org-wide Jira issues to boost developer throughput.",
@@ -60,10 +60,9 @@ export const experience: ExperienceEntry[] = [
       {
         title: "Software Development Intern",
         stack: "Java · Vert.x · SQL",
-        // NOTE: intern dates are an assumption (not in the original résumé data) — correct if wrong.
-        dates: "Jan 2023 — May 2023",
+        dates: "Jan 2023 — Jun 2023",
         start: "2023-01",
-        end: "2023-05",
+        end: "2023-06-13",
         bullets: [
           "Developed an on-demand settlement generation API that decoupled Visa support workflows from engineering, cutting delivery time for custom requests.",
         ],
@@ -279,7 +278,7 @@ export const education = {
 
 export const headline = {
   role: "Senior Software Engineer, Visa",
-  statement: "I move money at scale, and build the agents that keep it moving.",
+  statement: "I help move money at scale, and build the agents that keep it moving.",
   lede: "Backend engineer working on distributed payment infrastructure and agentic AI. Three years at Visa across settlement, event processing and developer tooling.",
   availability: "Open to conversations",
 };
@@ -299,6 +298,19 @@ export const flowStages = [
   { id: "stream", label: "Kafka", note: "100M+/day" },
   { id: "settle", label: "Settlement", note: "10x faster" },
   { id: "agents", label: "AI triage", note: "1M+ logs/s" },
+];
+
+/**
+ * The train on the right-hand rail: the engine plus one coach per section.
+ * `id` is the section's element id; `note` is what the coach projects.
+ */
+export const trainStops = [
+  { id: "top", name: "Soumya", note: "Senior Software Engineer, Visa" },
+  { id: "experience", name: "Experience", note: "6 roles across 4 companies" },
+  { id: "projects", name: "Projects", note: "Dimensys, live" },
+  { id: "open-source", name: "Open source", note: "1 merged, 2 in review, 1 in progress" },
+  { id: "skills", name: "Skills", note: "Java, Go, Python, Kafka" },
+  { id: "contact", name: "Contact", note: "Say hello" },
 ];
 
 export const contact = {
