@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { AnimatePresence, m } from "framer-motion";
 import {
+  Activity,
   ArrowUp,
   Briefcase,
   Check,
@@ -96,6 +97,7 @@ function PaletteDialog({ onClose, theme, onToggleTheme }: Pick<Props, "onClose" 
       }));
     return [
       { id: "top", label: "Back to top", hint: "#top", group: "navigate", icon: ArrowUp, run: () => jump("top") },
+      { id: "impact", label: "Impact", hint: "outcomes", group: "navigate", icon: Activity, run: () => jump("impact"), keywords: "numbers results flow ledger settlement" },
       { id: "experience", label: "Experience", hint: "01", group: "navigate", icon: Briefcase, run: () => jump("experience"), keywords: "work visa jobs trace career" },
       { id: "projects", label: "Projects", hint: "02", group: "navigate", icon: FolderGit2, run: () => jump("projects") },
       { id: "open-source", label: "Open source", hint: "03", group: "navigate", icon: GitPullRequest, run: () => jump("open-source"), keywords: "oss contributions pull requests jupyterlab p5" },

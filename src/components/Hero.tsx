@@ -2,8 +2,6 @@ import type { ReactNode } from "react";
 import { m } from "framer-motion";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
 import { contact, headline } from "../data/resume";
-import Flow from "./Flow";
-import Ledger from "./Ledger";
 
 // The statement is broken into lines by hand so each can rise in on its own
 // and so the two italic words land where they should. Keep it in sync with
@@ -72,9 +70,6 @@ export default function Hero() {
             </a>
           </div>
         </m.div>
-
-        <Flow />
-        <Ledger />
       </div>
     </section>
   );

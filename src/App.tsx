@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import TopBar from "./components/TopBar";
 import Hero from "./components/Hero";
+import Impact from "./components/Impact";
 import Trace from "./components/Trace";
 import Projects from "./components/Projects";
 import OpenSource from "./components/OpenSource";
@@ -27,6 +28,7 @@ export default function App() {
 
       <main id="main">
         <Hero />
+        <Impact />
         <Trace />
         <Projects />
         <OpenSource />

@@ -308,6 +308,7 @@ export const flowStages = [
  */
 export const trainStops: { id: string; name: string; screen: string; tuck?: string }[] = [
   { id: "top", name: "Soumya", screen: "#top .wrap" },
+  { id: "impact", name: "Impact", screen: "#impact .wrap" },
   { id: "experience", name: "Experience", screen: "#experience .wrap", tuck: "#experience .trace" },
   { id: "projects", name: "Projects", screen: "#projects .wrap", tuck: "#projects .feature-shot" },
   { id: "open-source", name: "Open source", screen: "#open-source .wrap" },

@@ -278,7 +278,11 @@ kbd {
 /* ==========================================================================
    HERO
    ========================================================================== */
-.hero { padding: clamp(120px, 16vw, 190px) 0 clamp(56px, 7vw, 96px); }
+/* the first page: the statement alone fills the first screen */
+.hero { min-height: 100svh; display: grid; align-items: center; padding: clamp(104px, 12vw, 150px) 0 clamp(56px, 7vw, 96px); }
+.hero > .wrap { width: 100%; }
+/* the second page: flow and ledger */
+.impact .flow { margin-top: 0; padding-top: 0; }
 
 .hero-kicker {
   display: flex;
