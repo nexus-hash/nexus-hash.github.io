@@ -1,23 +1,21 @@
 import { m } from "framer-motion";
-import { ArrowUpRight, GitMerge, GitPullRequestArrow, GitPullRequestDraft, Star } from "lucide-react";
-import { openSource, openSourceSearchUrl } from "../data/resume";
+import { ArrowUpRight, GitMerge, GitPullRequestArrow, Star } from "lucide-react";
+import oss from "../data/oss.json";
+import { openSourceSearchUrl } from "../data/resume";
 import SectionHead from "./SectionHead";
 
-const STATUS = {
-  merged: { label: "Merged", Icon: GitMerge },
-  open: { label: "In review", Icon: GitPullRequestArrow },
-  "in-progress": { label: "In progress", Icon: GitPullRequestDraft },
-} as const;
+const stars = new Intl.NumberFormat("en", { notation: "compact", maximumFractionDigits: 1 });
+const plural = (n: number, one: string, many: string) => `${n} ${n === 1 ? one : many}`;
 
-/** Split off the last word so the link icon is glued to it and never wraps alone. */
-function splitTitle(t: string): [string, string] {
-  const i = t.lastIndexOf(" ");
-  return i === -1 ? ["", t] : [t.slice(0, i + 1), t.slice(i + 1)];
-}
+/** The project's pull request list on GitHub, filtered to this author. */
+const pulls = (repo: string, extra = "") =>
+  `https://github.com/${repo}/pulls?q=${encodeURIComponent(`is:pr author:${oss.author}${extra}`)}`;
 
 export default function OpenSource() {
-  const merged = openSource.filter((c) => c.status === "merged").length;
-  const repos = new Set(openSource.map((c) => c.repo)).size;
+  // Only projects that have accepted a change are listed. The rest still count as opened.
+  const shown = oss.projects.filter((p) => p.merged > 0);
+  const opened = oss.projects.reduce((n, p) => n + p.opened, 0);
+  const merged = oss.projects.reduce((n, p) => n + p.merged, 0);
 
   return (
     <section className="section" id="open-source">
@@ -34,86 +32,84 @@ export default function OpenSource() {
         />
 
         <div className="os">
-          <div className="os-head" aria-hidden="true">
-            <span>Status</span>
-            <span>Change</span>
-            <span>Diff</span>
-            <span>Date</span>
-          </div>
+          <dl className="os-totals">
+            <div>
+              <dt>Pull requests opened</dt>
+              <dd>{opened}</dd>
+            </div>
+            <div>
+              <dt>Merged</dt>
+              <dd>{merged}</dd>
+            </div>
+            <div>
+              <dt>Projects merged into</dt>
+              <dd>{shown.length}</dd>
+            </div>
+          </dl>
 
-          <ol>
-            {openSource.map((c, i) => {
-              const { label, Icon } = STATUS[c.status];
-              const [head, tail] = splitTitle(c.title);
-              const total = (c.diff?.add ?? 0) + (c.diff?.del ?? 0) || 1;
-              return (
-                <m.li
-                  className="os-row"
-                  key={`${c.repo}#${c.number}`}
-                  initial={{ opacity: 0, y: 16 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true, margin: "-6% 0px" }}
-                  transition={{ duration: 0.55, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
-                >
-                  <span className={`os-status is-${c.status}`}>
-                    <Icon size={13} aria-hidden="true" />
-                    {label}
-                  </span>
+          <ol className="os-list">
+            {shown.map((p, i) => (
+              <m.li
+                className="os-row"
+                key={p.repo}
+                initial={{ opacity: 0, y: 16 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true, margin: "-6% 0px" }}
+                transition={{ duration: 0.55, delay: Math.min(i, 6) * 0.06, ease: [0.22, 1, 0.36, 1] }}
+              >
+                <img
+                  className="os-icon"
+                  src={`${import.meta.env.BASE_URL}${p.icon}`}
+                  alt=""
+                  width={44}
+                  height={44}
+                  loading="lazy"
+                  decoding="async"
+                />
 
-                  <div className="os-main">
-                    <p className="os-repo">
-                      <a href={`https://github.com/${c.repo}`} target="_blank" rel="noopener noreferrer">
-                        {c.repo}
-                      </a>
-                      <span>
-                        <Star size={11} aria-hidden="true" />
-                        {c.stars}
-                      </span>
-                      <span>{c.language}</span>
-                      <span>#{c.number}</span>
-                    </p>
-                    <h3 className="os-title">
-                      <a href={c.url} target="_blank" rel="noopener noreferrer">
-                        {head}
-                        <span className="os-title-tail">
-                          {tail}
-                          <ArrowUpRight size={16} aria-hidden="true" />
-                        </span>
-                      </a>
-                    </h3>
-                    <p className="os-summary">{c.summary}</p>
-                    {c.issue && (
-                      <a className="os-issue" href={c.issue.url} target="_blank" rel="noopener noreferrer">
-                        {c.status === "merged" ? "closes" : "refs"} #{c.issue.number}
-                      </a>
-                    )}
-                  </div>
+                <div className="os-main">
+                  <h3 className="os-name">
+                    <a href={`https://github.com/${p.repo}`} target="_blank" rel="noopener noreferrer">
+                      {p.repo}
+                    </a>
+                  </h3>
+                  {p.description && <p className="os-summary">{p.description}</p>}
+                  <p className="os-meta">
+                    {p.language && <span>{p.language}</span>}
+                    <span>
+                      <Star size={11} aria-hidden="true" />
+                      {stars.format(p.stars)}
+                    </span>
+                  </p>
+                </div>
 
-                  <div className="os-diff">
-                    {c.diff && (
-                      <>
-                        <span>
-                          <span className="add">+{c.diff.add}</span>
-                          <span className="del">−{c.diff.del}</span>
-                        </span>
-                        <span className="os-diff-bar" aria-hidden="true">
-                          <span className="add" style={{ flex: c.diff.add / total }} />
-                          <span className="del" style={{ flex: c.diff.del / total }} />
-                        </span>
-                      </>
-                    )}
-                  </div>
-
-                  <p className="os-date">{c.date}</p>
-                </m.li>
-              );
-            })}
+                <div className="os-counts">
+                  <a
+                    className="os-count is-merged"
+                    href={pulls(p.repo, " is:merged")}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${plural(p.merged, "merged pull request", "merged pull requests")} in ${p.repo}, on GitHub`}
+                  >
+                    <GitMerge size={14} aria-hidden="true" />
+                    <b>{p.merged}</b> merged
+                  </a>
+                  <a
+                    className="os-count"
+                    href={pulls(p.repo)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={`${plural(p.opened, "pull request", "pull requests")} opened in ${p.repo}, on GitHub`}
+                  >
+                    <GitPullRequestArrow size={14} aria-hidden="true" />
+                    <b>{p.opened}</b> opened
+                  </a>
+                </div>
+              </m.li>
+            ))}
           </ol>
 
           <div className="os-foot">
-            <span className="mono">
-              {openSource.length} entries · {merged} merged · {repos} repositories
-            </span>
             <a className="link" href={openSourceSearchUrl} target="_blank" rel="noopener noreferrer">
               Every pull request on GitHub <ArrowUpRight size={14} aria-hidden="true" />
             </a>

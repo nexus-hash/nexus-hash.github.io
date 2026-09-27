@@ -4,6 +4,9 @@ on:
   push:
     branches: ["main"]
   workflow_dispatch:
+  # Weekly rebuild so the open source counts stay current without a push.
+  schedule:
+    - cron: "0 3 * * 1"
 
 permissions:
   contents: read
@@ -27,6 +30,10 @@ jobs:
           cache: "npm"
       - name: Install dependencies
         run: npm ci
+      - name: Refresh open source counts
+        run: npm run sync:oss
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Lint
         run: npm run lint
       - name: Typecheck & build

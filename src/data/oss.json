@@ -1,0 +1,38 @@
+{
+  "author": "nexus-hash",
+  "projects": [
+    {
+      "repo": "jupyterlab/jupyterlab",
+      "name": "jupyterlab",
+      "description": "JupyterLab computational environment.",
+      "language": "TypeScript",
+      "stars": 15322,
+      "icon": "oss/jupyterlab.png",
+      "opened": 2,
+      "merged": 1,
+      "lastMerged": "2026-09-23T12:46:12Z"
+    },
+    {
+      "repo": "processing/p5.js",
+      "name": "p5.js",
+      "description": "p5.js is a client-side JS platform that empowers artists, designers, students, and anyone to learn to code and express themselves creatively on the web. It is based on the core principles of Processing. Looking for p5.js 2.0? http://beta.p5js.org",
+      "language": "JavaScript",
+      "stars": 24052,
+      "icon": "oss/processing.png",
+      "opened": 1,
+      "merged": 0,
+      "lastMerged": null
+    },
+    {
+      "repo": "jupyterlab/jupyter-builder",
+      "name": "jupyter-builder",
+      "description": "Build tools for JupyterLab (and remixes)",
+      "language": "Python",
+      "stars": 15,
+      "icon": "oss/jupyterlab.png",
+      "opened": 1,
+      "merged": 0,
+      "lastMerged": null
+    }
+  ]
+}

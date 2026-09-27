@@ -190,83 +190,8 @@ export const projects: Project[] = [
   },
 ];
 
-export interface Contribution {
-  repo: string;
-  /** Formatted star count, e.g. "15.3K". */
-  stars: string;
-  language: string;
-  number: number;
-  title: string;
-  summary: string;
-  status: "merged" | "open" | "in-progress";
-  date: string;
-  diff?: { add: number; del: number };
-  url: string;
-  /** The upstream issue this work addresses. */
-  issue?: { number: number; url: string };
-}
-
-/** Upstream contributions, newest first. Status labels: merged / open (PR up) / in-progress (issue triaged, PR being redone). */
-export const openSource: Contribution[] = [
-  {
-    repo: "jupyterlab/jupyterlab",
-    stars: "15.3K",
-    language: "TypeScript",
-    number: 19817,
-    title: "Stop xterm.js from detecting the browser as Node",
-    summary:
-      "The webpack process shim sets process.title, which makes xterm.js think it runs in Node and skip navigator.platform — so isMac is false and Option+digit, | and {} stop working in the macOS terminal. Fixes the detection at the bundle level.",
-    status: "open",
-    date: "Sep 2026",
-    diff: { add: 64, del: 0 },
-    url: "https://github.com/jupyterlab/jupyterlab/pull/19817",
-    issue: { number: 16489, url: "https://github.com/jupyterlab/jupyterlab/issues/16489" },
-  },
-  {
-    repo: "jupyterlab/jupyter-builder",
-    stars: "15",
-    language: "TypeScript",
-    number: 185,
-    title: "Provide a process shim without title",
-    summary:
-      "Companion to the xterm fix, at the build-tool layer: ships a process polyfill that doesn't set title, so every extension bundle built with @jupyter/builder gets correct platform detection for free.",
-    status: "open",
-    date: "Sep 2026",
-    diff: { add: 17, del: 2 },
-    url: "https://github.com/jupyterlab/jupyter-builder/pull/185",
-    issue: { number: 16489, url: "https://github.com/jupyterlab/jupyterlab/issues/16489" },
-  },
-  {
-    repo: "processing/p5.js",
-    stars: "24K",
-    language: "JavaScript",
-    number: 9208,
-    title: "loadFont() drops every glyph for variable fonts with short gvar offsets",
-    summary:
-      "Root-caused Typr's gvar parser reading all glyph-variation offsets as 4-byte values and ignoring the flags bit for the 2-byte form. Most Google variable fonts use the short form, so the whole table misaligned. Fix proposed; PR being redone against the triaged issue per maintainer process.",
-    status: "in-progress",
-    date: "Sep 2026",
-    diff: { add: 110, del: 9 },
-    url: "https://github.com/processing/p5.js/issues/9208",
-    issue: { number: 7486, url: "https://github.com/processing/p5.js/issues/7486" },
-  },
-  {
-    repo: "jupyterlab/jupyterlab",
-    stars: "15.3K",
-    language: "TypeScript",
-    number: 19714,
-    title: "Defer Tab to the completer only when it's actually bound",
-    summary:
-      "Tab was hijacked by autocomplete even after users rebound the completer shortcut, so they couldn't insert a tab. Added a command-registry editor extension so the CodeMirror keymap checks the live binding before deferring.",
-    status: "merged",
-    date: "Sep 2026",
-    diff: { add: 383, del: 4 },
-    url: "https://github.com/jupyterlab/jupyterlab/pull/19714",
-    issue: { number: 16164, url: "https://github.com/jupyterlab/jupyterlab/issues/16164" },
-  },
-];
-
-export const openSourceSearchUrl = "https://github.com/search?q=is%3Apr+author%3Anexus-hash&type=pullrequests";
+/** Open source numbers live in oss.json, which `npm run sync:oss` refreshes from GitHub. */
+export const openSourceSearchUrl = "https://github.com/search?q=is%3Apr+author%3Anexus-hash+-user%3Anexus-hash&type=pullrequests";
 
 export const education = {
   school: "Vellore Institute of Technology",
