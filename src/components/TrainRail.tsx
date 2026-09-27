@@ -5,8 +5,9 @@ import { trainStops } from "../data/resume";
  * The train rail: a fixed maglev guideway down the right edge with a white
  * bullet train seen from above, nose pointing up. The track never moves.
  * Scrolling down drives the train up the track, one car per section; the car
- * level with the projection line lights a side window and throws a cone of
- * light onto a small card that names the section.
+ * level with the projection line lights a side window and projects onto its
+ * section: two lines run from the top and bottom of the window to the
+ * section's top-right and bottom-right corners, with light between them.
  *
  * All geometry below is in "train units"; one car is 64 units wide.
  */
@@ -60,8 +61,10 @@ export default function TrainRail() {
   const dockRef = useRef<HTMLElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const trainRef = useRef<SVGSVGElement>(null);
-  const beamRef = useRef<HTMLDivElement>(null);
-  const cardRef = useRef<HTMLDivElement>(null);
+  const showRef = useRef<SVGSVGElement>(null);
+  const coneRef = useRef<SVGPolygonElement>(null);
+  const edgeRef = useRef<SVGPathElement>(null);
+  const fadeRef = useRef<SVGLinearGradientElement>(null);
   const patternRef = useRef<SVGPatternElement>(null);
   const [near, setNear] = useState(0);
   const nearRef = useRef(0);
@@ -70,12 +73,17 @@ export default function TrainRail() {
     const dock = dockRef.current;
     const track = trackRef.current;
     const train = trainRef.current;
-    const beam = beamRef.current;
-    const card = cardRef.current;
-    if (!dock || !track || !train || !beam || !card) return;
+    const show = showRef.current;
+    const cone = coneRef.current;
+    const edge = edgeRef.current;
+    const fade = fadeRef.current;
+    if (!dock || !track || !train || !show || !cone || !edge || !fade) return;
 
     let k = 1; // px per train unit
     let line = 0; // projection line, px from the top of the dock
+    let dockTop = 0; // top of the dock in the viewport
+    let faceX = 0; // x of the train's left face in the viewport
+    let screens: { el: Element; pad: number }[] = [];
     let raf = 0;
 
     /** Fractional car index level with the projection line, from the scroll position. */
@@ -101,12 +109,29 @@ export default function TrainRail() {
       // scrolling down raises pos, which pulls the train up the track
       train!.style.transform = `translate3d(0, ${line - (windowY(0) + pos * PITCH - VIEW.y) * k}px, 0)`;
 
-      const y = line + (active - pos) * PITCH * k; // where the active window is right now
-      const focus = Math.max(0.3, 1 - Math.abs(pos - active) * 1.5);
-      beam!.style.transform = `translate3d(0, ${y}px, 0) translateY(-50%)`;
-      beam!.style.opacity = String(focus);
-      card!.style.transform = `translate3d(0, ${y}px, 0) translateY(-50%)`;
-      card!.style.opacity = String(focus);
+      // The show: from the lit window to the two right-hand corners of its section.
+      const wy = dockTop + line + (active - pos) * PITCH * k; // where the active window is right now
+      const half = (WINH * k) / 2;
+      const target = screens[active];
+      let visible = false;
+      if (target) {
+        const r = target.el.getBoundingClientRect();
+        const sx = r.right - target.pad;
+        // anchor to the corners, or to where the section meets the edge of the view
+        const lo = dockTop + 12;
+        const hi = window.innerHeight - 12;
+        const top = Math.min(hi, Math.max(lo, r.top));
+        const bottom = Math.min(hi, Math.max(lo, r.bottom));
+        if (bottom - top > 24 && faceX - sx > 8) {
+          visible = true;
+          cone!.setAttribute("points", `${sx},${top} ${faceX},${wy - half} ${faceX},${wy + half} ${sx},${bottom}`);
+          edge!.setAttribute("d", `M${sx} ${top} L${faceX} ${wy - half} M${sx} ${bottom} L${faceX} ${wy + half} M${sx} ${top} V${bottom}`);
+          fade!.setAttribute("x1", String(sx));
+          fade!.setAttribute("x2", String(faceX));
+        }
+      }
+      const focus = Math.max(0.25, 1 - Math.abs(pos - active) * 1.5);
+      show!.style.opacity = visible ? String(focus) : "0";
 
       if (active !== nearRef.current) {
         nearRef.current = active;
@@ -118,13 +143,18 @@ export default function TrainRail() {
       const trackW = track!.getBoundingClientRect().width;
       const carW = trackW / 1.5;
       k = carW / W;
-      line = dock!.getBoundingClientRect().height * 0.5;
+      const d = dock!.getBoundingClientRect();
+      line = d.height * 0.5;
+      dockTop = d.top;
+      faceX = d.right - (trackW / 2 + (W / 2) * k) + 1.5 * k;
+      screens = trainStops.map((s) => {
+        const el = document.querySelector(s.screen) ?? document.getElementById(s.id) ?? document.body;
+        return { el, pad: parseFloat(getComputedStyle(el).paddingRight) || 0 };
+      });
       train!.style.width = `${VIEW.w * k}px`;
       train!.style.height = `${VIEW.h * k}px`;
       train!.style.right = `${trackW / 2 - (PADX + W / 2) * k}px`;
       patternRef.current?.setAttribute("patternTransform", `scale(${k})`);
-      dock!.style.setProperty("--win", `${WINH * k}px`);
-      dock!.style.setProperty("--face", `${trackW / 2 + (W / 2) * k - 2 * k}px`); // left face of the train, from the right edge
       frame();
     }
 
@@ -152,9 +182,18 @@ export default function TrainRail() {
     if (el) el.scrollIntoView({ behavior: "smooth", block: "start" });
   }
 
-  const stop = trainStops[near];
-
   return (
+    <>
+    <svg className="rail-show" ref={showRef} aria-hidden="true">
+      <defs>
+        <linearGradient id="rail-fade" ref={fadeRef} gradientUnits="userSpaceOnUse" y1="0" y2="0">
+          <stop offset="0" className="rail-fade-0" />
+          <stop offset="1" className="rail-fade-1" />
+        </linearGradient>
+      </defs>
+      <polygon ref={coneRef} className="rail-cone" fill="url(#rail-fade)" />
+      <path ref={edgeRef} className="rail-edge" />
+    </svg>
     <aside className="rail" ref={dockRef} aria-hidden="true">
       {/* The guideway. Static: it never moves with the page. */}
       <div className="rail-track" ref={trackRef}>
@@ -263,16 +302,7 @@ export default function TrainRail() {
         </g>
       </svg>
 
-      <div className="rail-beam" ref={beamRef} />
-      <div className="rail-card" ref={cardRef}>
-        <p className="rail-card-name" key={stop.id}>
-          {stop.name}
-        </p>
-        <p className="rail-card-note">{stop.note}</p>
-        <p className="rail-card-count">
-          {near === 0 ? "engine" : `coach ${near} of ${N - 1}`}
-        </p>
-      </div>
     </aside>
+    </>
   );
 }

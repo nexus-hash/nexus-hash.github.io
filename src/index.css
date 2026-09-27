@@ -37,17 +37,15 @@
   /* train rail: car width, track width, and the space the dock reserves on the right */
   --car: clamp(46px, 4.4vw, 70px);
   --trackw: calc(var(--car) * 1.5);
-  --bay: 0px;
-  --baygap: 0px;
   --dock: 0px;
   --bar-h: 61px;
   color-scheme: light;
 }
 @media (min-width: 720px) {
-  :root { --dock: calc(var(--trackw) + 10px); }
+  :root { --dock: calc(var(--trackw) + 20px); }
 }
 @media (min-width: 1100px) {
-  :root { --bay: 148px; --baygap: 40px; --dock: calc(var(--trackw) + var(--baygap) + var(--bay) + 18px); }
+  :root { --dock: calc(var(--trackw) + 60px); }
 }
 
 @media (prefers-color-scheme: dark) {
@@ -956,41 +954,22 @@ kbd {
 .rail-charge-0 { stop-color: var(--sig); stop-opacity: 0.42; }
 .rail-charge-1 { stop-color: var(--sig); stop-opacity: 0; }
 
-/* the cone of light from the window, and the card it lands on */
-.rail-beam {
-  position: absolute;
-  top: 0;
-  right: var(--face);
-  width: calc(var(--trackw) + var(--baygap) - var(--face) + 2px);
-  height: 132px;
-  clip-path: polygon(0 0, 100% calc(50% - var(--win) / 2), 100% calc(50% + var(--win) / 2), 0 100%);
-  background: linear-gradient(to right, var(--sig-soft), var(--sig-glow));
-  will-change: transform, opacity;
+/* the show: light from the lit window to the right-hand corners of its section */
+.rail-show {
+  --sig: #8ea0ff;
+  display: none;
+  position: fixed;
+  inset: 0;
+  z-index: 39;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  transition: opacity 0.3s var(--ease);
 }
-.rail-card {
-  position: absolute;
-  top: 0;
-  right: calc(var(--trackw) + var(--baygap));
-  width: var(--bay);
-  min-height: 132px;
-  padding: 16px 16px 14px;
-  display: grid;
-  align-content: center;
-  gap: 4px;
-  border: 1px solid var(--sig);
-  border-radius: 12px;
-  background: linear-gradient(to left, #1b1b18, #0f0f0d);
-  color: var(--bone);
-  box-shadow: 0 0 0 1px var(--sig-soft), 0 18px 50px -18px var(--sig-glow);
-  will-change: transform, opacity;
-}
-.rail-card-name { font-family: var(--font-display); font-size: 1.375rem; line-height: 1.1; letter-spacing: -0.01em; animation: rail-swap 0.45s var(--ease); }
-.rail-card-note { font-size: 0.8125rem; line-height: 1.35; color: rgba(242, 239, 231, 0.7); }
-.rail-card-count { margin-top: 6px; font-family: var(--font-mono); font-size: 0.6875rem; color: var(--sig); }
-@keyframes rail-swap { from { opacity: 0; transform: translateY(6px); } }
-@media (max-width: 1099px) {
-  .rail-card, .rail-beam { display: none; }
-}
+@media (min-width: 720px) { .rail-show { display: block; } }
+.rail-fade-0 { stop-color: var(--sig); stop-opacity: 0.05; }
+.rail-fade-1 { stop-color: var(--sig); stop-opacity: 0.5; }
+.rail-edge { fill: none; stroke: var(--sig); stroke-width: 1.2; stroke-linecap: round; filter: drop-shadow(0 0 4px var(--sig)); }
 @media (prefers-reduced-motion: reduce) {
   .gw-chev { animation: none; opacity: 0.6; }
 }

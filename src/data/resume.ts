@@ -302,15 +302,16 @@ export const flowStages = [
 
 /**
  * The train on the right-hand rail: the engine plus one coach per section.
- * `id` is the section's element id; `note` is what the coach projects.
+ * `id` is the section's element id. `screen` is the box inside that section
+ * the coach projects onto: its two right-hand corners anchor the beam.
  */
 export const trainStops = [
-  { id: "top", name: "Soumya", note: "Senior Software Engineer, Visa" },
-  { id: "experience", name: "Experience", note: "6 roles across 4 companies" },
-  { id: "projects", name: "Projects", note: "Dimensys, live" },
-  { id: "open-source", name: "Open source", note: "1 merged, 2 in review, 1 in progress" },
-  { id: "skills", name: "Skills", note: "Java, Go, Python, Kafka" },
-  { id: "contact", name: "Contact", note: "Say hello" },
+  { id: "top", name: "Soumya", screen: "#top .wrap" },
+  { id: "experience", name: "Experience", screen: "#experience .trace" },
+  { id: "projects", name: "Projects", screen: "#projects .feature" },
+  { id: "open-source", name: "Open source", screen: "#open-source .os" },
+  { id: "skills", name: "Skills", screen: "#skills .manifest" },
+  { id: "contact", name: "Contact", screen: "#contact .wrap" },
 ];
 
 export const contact = {
