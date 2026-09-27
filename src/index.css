@@ -373,7 +373,8 @@ kbd {
   position: absolute;
   left: 6px;
   right: 6px;
-  top: 6px;
+  /* through the centre of the station rings: 6px of padding plus half a 13px ring */
+  top: 12px;
   height: 1px;
   background: var(--rule-strong);
   transform-origin: left;
@@ -422,6 +423,7 @@ kbd {
 .flow-tap {
   position: relative;
   margin-top: 18px;
+  margin-left: 6px; /* the branch drops from under the centre of its ring */
   padding: 12px 0 0 16px;
   border-left: 1px dashed var(--accent);
 }
@@ -452,6 +454,7 @@ kbd {
   .flow-stage:last-child .flow-node { left: 0; right: auto; }
   .flow-stage .flow-node { top: 6px; }
   .flow-stage { display: block; }
+  .flow-tap { margin-left: 0; }
 }
 
 /* ---- Ledger: headline outcomes as ruled lines ---- */
