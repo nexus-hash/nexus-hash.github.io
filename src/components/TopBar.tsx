@@ -46,7 +46,7 @@ export default function TopBar({ theme, onToggleTheme, onOpenPalette }: Props) {
     <header className="bar" ref={ref}>
       <nav className="wrap bar-inner" aria-label="Primary">
         <a className="bar-name" href="#top" aria-label="Soumya Ranjan Tripathy — back to top">
-          Soumya Tripathy<span>.</span>
+          Soumya R Tripathy<span>.</span>
         </a>
 
         <ul className="bar-links">

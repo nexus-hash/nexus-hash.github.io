@@ -6,10 +6,11 @@ import { trainStops } from "../data/resume";
  * bullet train seen from above, nose pointing up. The track never moves.
  * Scrolling down drives the train up the track, one car per section; the car
  * level with the projection line lights a side window and projects onto its
- * section: a soft cone of light from the window to the section's top-right
- * and bottom-right corners. The cone stays pinned to those corners, so part
- * of it is off screen when a corner is. It is painted behind the page
- * content, so a section's rounded corners sit on top of the light.
+ * section. Two rays leave the window, pass through the section's top-right
+ * and bottom-right corners, and carry on across the page, fading to the left.
+ * The light stays pinned to those corners, so part of it is off screen when a
+ * corner is. It is painted behind the page content: titles sit in the light,
+ * while tables and panels are solid and cover it. Dust drifts inside the beam.
  *
  * All geometry below is in "train units"; one car is 64 units wide.
  */
@@ -25,7 +26,7 @@ const AHEAD = 250; // room ahead of the nose for the headlight beam
 const BREATHE = 36; // px of clear space between plain content and the light
 const MOTES = 70; // dust particles in the first page's beam
 
-/** The first page's projection, in viewport px: window, section edge, and how far left the light carries. */
+/** The current projection, in viewport px: window, section edge, and how far left the light carries. */
 interface Projection {
   faceX: number;
   wy: number;
@@ -109,10 +110,8 @@ export default function TrainRail() {
     const ctx = canvas.getContext("2d");
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // Dust drifts on every page. On the first page it shows only inside the beam,
-    // which carries on across the page; elsewhere it floats freely, with no light.
+    // Dust drifts only inside the beam, on every page.
     let proj: Projection | null = null;
-    let edgeX = 0; // right-hand limit for free-floating dust
     let dustRaf = 0;
     const dust = Array.from({ length: MOTES }, () => ({
       x: Math.random(),
@@ -131,8 +130,9 @@ export default function TrainRail() {
       ctx.clearRect(0, 0, w, h);
       if (w < 720) return; // the train and its dust are hidden on small screens
       const p = proj;
-      const left = p ? p.left : 0;
-      const right = p ? p.faceX : edgeX;
+      if (!p) return;
+      const left = p.left;
+      const right = p.faceX;
       const span = Math.max(1, right - left);
       for (const d of dust) {
         d.x += d.vx;
@@ -145,17 +145,12 @@ export default function TrainRail() {
         const y = d.y * h;
         const near = 1 - (right - x) / span; // brighter towards the train
         const twinkle = 0.55 + 0.45 * Math.sin(d.tw);
-        let alpha: number;
-        if (p) {
-          // inside the beam? the two rays leave the window and pass through the section's corners
-          const t = (p.faceX - x) / (p.faceX - p.sx);
-          const upper = p.wy - p.half + (p.top - (p.wy - p.half)) * t;
-          const lower = p.wy + p.half + (p.bottom - (p.wy + p.half)) * t;
-          if (y < upper || y > lower) continue;
-          alpha = p.strength * (0.12 + near * 0.6) * twinkle;
-        } else {
-          alpha = (0.1 + near * 0.3) * twinkle;
-        }
+        // inside the beam? the two rays leave the window and pass through the section's corners
+        const t = (p.faceX - x) / (p.faceX - p.sx);
+        const upper = p.wy - p.half + (p.top - (p.wy - p.half)) * t;
+        const lower = p.wy + p.half + (p.bottom - (p.wy + p.half)) * t;
+        if (y < upper || y > lower) continue;
+        const alpha = p.strength * (0.12 + near * 0.6) * twinkle;
         ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
         ctx.beginPath();
         ctx.arc(x, y, d.r, 0, Math.PI * 2);
@@ -220,9 +215,9 @@ export default function TrainRail() {
       }
       const focus = Math.max(0.25, 1 - Math.abs(pos - active) * 1.5);
 
-      // First page: carry the two rays on across the page and let the light fade out.
+      // Carry the two rays on across the page and let the light fade out.
       let next: Projection | null = null;
-      if (visible && active === 0 && target) {
+      if (visible && target) {
         const r = target.el.getBoundingClientRect();
         const sx = r.right - target.inset;
         const left = 0; // the light runs to the edge of the screen, so it has no left-hand edge
@@ -259,7 +254,6 @@ export default function TrainRail() {
       line = d.height * 0.5;
       dockTop = d.top;
       trackLeft = d.right - trackW;
-      edgeX = trackLeft;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       canvas!.width = window.innerWidth * dpr;
       canvas!.height = window.innerHeight * dpr;

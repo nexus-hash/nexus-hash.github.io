@@ -981,7 +981,7 @@ kbd {
 .rail-tip polygon { transition: opacity 0.3s var(--ease); }
 .rail-cone { filter: blur(7px); }
 
-/* First page only: the beam carries on across the page like a real projection. */
+/* The beam carries on across the page like a real projection. */
 .rail-wash { filter: blur(8px); transition: opacity 0.4s var(--ease); }
 .rail-wash-0 { stop-color: var(--sig); stop-opacity: 0; }
 /* fine film grain over the beam: breaks up banding in the very gentle gradient */
@@ -1015,10 +1015,19 @@ kbd {
   82% { filter: brightness(1.04); }
   82.8% { filter: brightness(1); }
 }
-/* The statement is made of that light. A filter on the whole heading, because each
-   line clips its own overflow for the rise-in, which would cut a text-shadow into bands. */
+/* Headings are made of that light. A filter on the whole heading, because each line of
+   the statement clips its own overflow for the rise-in, which would cut a text-shadow into bands. */
 @media (min-width: 720px) {
   .hero h1 { filter: drop-shadow(0 0 26px color-mix(in srgb, var(--accent) 30%, transparent)); }
+  .section-head h2, .contact h2 { filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 26%, transparent)); }
+
+  /* Tables and panels are solid and sit on top of the light, so it never shows through
+     them. The spread keeps their text clear of the lit area around them. */
+  .ledger, .os, .manifest, .feature, .contact-grid {
+    position: relative;
+    background: var(--paper);
+    box-shadow: 0 0 0 clamp(14px, 1.8vw, 26px) var(--paper);
+  }
 }
 @media (prefers-reduced-motion: reduce) {
   .rail-show.is-projecting { animation: none; }
