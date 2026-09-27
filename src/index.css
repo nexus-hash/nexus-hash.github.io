@@ -1221,10 +1221,11 @@ kbd {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   fill: var(--sig);
-  fill-opacity: 0.34;
-  filter: blur(0.6px);
+  /* the filter thins the fill to 45% and traces a solid edge round the silhouette;
+     a plain stroke would also trace the overlapping contours inside the letters */
+  filter: url(#rail-mark-fx);
   transition: opacity 0.3s var(--ease);
   pointer-events: none;
   user-select: none;
 }
-:root[data-theme="light"] .rail-mark { fill-opacity: 0.2; }
+.rail-mark-edge { flood-color: var(--sig); }

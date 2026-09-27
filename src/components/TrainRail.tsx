@@ -488,6 +488,20 @@ export default function TrainRail() {
         <clipPath id="rail-mark-clip" clipPathUnits="userSpaceOnUse">
           <polygon ref={clipRef} />
         </clipPath>
+        <filter id="rail-mark-fx" x="-10%" y="-10%" width="120%" height="120%">
+          <feMorphology in="SourceAlpha" operator="dilate" radius="0.7" result="outer" />
+          <feMorphology in="SourceAlpha" operator="erode" radius="0.7" result="inner" />
+          <feComposite in="outer" in2="inner" operator="out" result="ring" />
+          <feFlood className="rail-mark-edge" result="ink" />
+          <feComposite in="ink" in2="ring" operator="in" result="edge" />
+          <feComponentTransfer in="SourceGraphic" result="body">
+            <feFuncA type="linear" slope="0.45" />
+          </feComponentTransfer>
+          <feMerge>
+            <feMergeNode in="body" />
+            <feMergeNode in="edge" />
+          </feMerge>
+        </filter>
       </defs>
       <g clipPath="url(#rail-mark-clip)">
         <text ref={markRef} className="rail-mark" textAnchor="middle" dominantBaseline="central" />
