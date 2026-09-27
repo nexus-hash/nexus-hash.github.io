@@ -60,17 +60,17 @@ const NOSE = `M26 6 Q32 -2 38 6 C52 28 64 70 64 118 V${EN - 5} Q64 ${EN} 59 ${EN
 function RoofUnit({ y }: { y: number }) {
   return (
     <g>
-      <rect x="18" y={y} width="28" height="48" rx="3" fill="#D3D0C6" stroke="#000" strokeOpacity="0.22" strokeWidth="0.6" />
-      <rect x="20.5" y={y + 2.5} width="23" height="43" rx="2" fill="#BFBCB2" />
+      <rect className="tf-unit ts-seam" x="18" y={y} width="28" height="48" rx="3" strokeOpacity="0.22" strokeWidth="0.6" />
+      <rect className="tf-unit-in" x="20.5" y={y + 2.5} width="23" height="43" rx="2" />
       {[13, 35].map((dy) => (
         <g key={dy} transform={`translate(32 ${y + dy})`}>
-          <circle r="8" fill="#8E8B83" />
-          <circle r="6.6" fill="#4B4A45" />
-          <path d="M-6.6 0 H6.6 M0 -6.6 V6.6 M-4.7 -4.7 L4.7 4.7 M-4.7 4.7 L4.7 -4.7" stroke="#8E8B83" strokeWidth="0.7" />
-          <circle r="1.7" fill="#A9A69D" />
+          <circle className="tf-metal" r="8" />
+          <circle className="tf-well" r="6.6" />
+          <path className="ts-metal" d="M-6.6 0 H6.6 M0 -6.6 V6.6 M-4.7 -4.7 L4.7 4.7 M-4.7 4.7 L4.7 -4.7" strokeWidth="0.7" />
+          <circle className="tf-hub" r="1.7" />
         </g>
       ))}
-      <path d={`M20.5 ${y + 24} H43.5`} stroke="#000" strokeOpacity="0.2" strokeWidth="0.6" />
+      <path className="ts-seam" d={`M20.5 ${y + 24} H43.5`} strokeOpacity="0.2" strokeWidth="0.6" />
     </g>
   );
 }
@@ -85,7 +85,7 @@ function SideGlass({ from, to }: { from: number; to: number }) {
         <g key={x}>
           <rect x={x} y={from} width="3.8" height={to - from} rx="1.2" fill="url(#rail-glassfill)" />
           {pillars.map((y) => (
-            <rect key={y} x={x} y={y} width="3.8" height="1.6" fill="#C9C6BC" />
+            <rect className="tf-pillar" key={y} x={x} y={y} width="3.8" height="1.6" />
           ))}
         </g>
       ))}
@@ -100,9 +100,9 @@ function RoofLines({ from, to }: { from: number; to: number }) {
   return (
     <g fill="none">
       {seams.map((y) => (
-        <path key={y} d={`M6 ${y} H${W - 6}`} stroke="#000" strokeOpacity="0.09" strokeWidth="0.7" />
+        <path className="ts-seam" key={y} d={`M6 ${y} H${W - 6}`} strokeOpacity="0.09" strokeWidth="0.7" />
       ))}
-      <path d={`M7.2 ${from} V${to} M${W - 7.2} ${from} V${to}`} stroke="#000" strokeOpacity="0.16" strokeWidth="0.7" />
+      <path className="ts-seam" d={`M7.2 ${from} V${to} M${W - 7.2} ${from} V${to}`} strokeOpacity="0.16" strokeWidth="0.7" />
     </g>
   );
 }
@@ -113,9 +113,9 @@ function Doors({ at }: { at: number[] }) {
     <>
       {at.map((y) => (
         <g key={y}>
-          <rect x="0.6" y={y} width="4.4" height="17" rx="1" fill="#2B2B28" />
-          <rect x={W - 5} y={y} width="4.4" height="17" rx="1" fill="#2B2B28" />
-          <path d={`M0.6 ${y + 8.5} H5 M${W - 5} ${y + 8.5} H${W - 0.6}`} stroke="#8E8B83" strokeWidth="0.5" />
+          <rect className="tf-door" x="0.6" y={y} width="4.4" height="17" rx="1" />
+          <rect className="tf-door" x={W - 5} y={y} width="4.4" height="17" rx="1" />
+          <path className="ts-metal" d={`M0.6 ${y + 8.5} H5 M${W - 5} ${y + 8.5} H${W - 0.6}`} strokeWidth="0.5" />
         </g>
       ))}
     </>
@@ -126,8 +126,8 @@ function Doors({ at }: { at: number[] }) {
 function Gangway() {
   return (
     <g>
-      <rect x="13" y={-G - 1} width={W - 26} height={G + 2} fill="#1B1B19" />
-      <path d={`M13 ${-G + 1.5} H${W - 13} M13 ${-G / 2} H${W - 13} M13 ${-1.5} H${W - 13}`} stroke="#3A3A36" strokeWidth="0.8" />
+      <rect className="tf-gang" x="13" y={-G - 1} width={W - 26} height={G + 2} />
+      <path className="ts-rib" d={`M13 ${-G + 1.5} H${W - 13} M13 ${-G / 2} H${W - 13} M13 ${-1.5} H${W - 13}`} strokeWidth="0.8" />
     </g>
   );
 }
@@ -144,26 +144,26 @@ function Cab({ lamps }: { lamps: boolean }) {
       <Doors at={[128, EN - 28]} />
       <path className="rail-stripe" d={`M8.6 ${EN} V118 C9 72 20 36 31 12 M${W - 8.6} ${EN} V118 C${W - 9} 72 44 36 33 12`} />
       {/* windscreen: one curved pane, with the sky reflected across it */}
-      <path d="M9 98 C11 64 21 40 32 30 C43 40 53 64 55 98 C50 108 14 108 9 98 Z" fill="#CFCCC2" />
+      <path className="tf-frame" d="M9 98 C11 64 21 40 32 30 C43 40 53 64 55 98 C50 108 14 108 9 98 Z" />
       <path d="M11 96 C13 65 22 43 32 33 C42 43 51 65 53 96 C49 105 15 105 11 96 Z" fill="url(#rail-screen)" />
       <path d="M17 88 C19 66 25 50 31 42 C27 56 25 72 25 92 Z" fill="#fff" fillOpacity="0.1" />
       <path d="M16 96 C24 101 40 101 48 96" stroke="#fff" strokeOpacity="0.22" strokeWidth="1.2" fill="none" />
-      <path d="M32 33 V26" stroke="#000" strokeOpacity="0.18" strokeWidth="0.7" />
+      <path className="ts-seam" d="M32 33 V26" strokeOpacity="0.18" strokeWidth="0.7" />
       {/* coupler hatch in the nose tip */}
-      <path d="M27.5 9 Q32 3 36.5 9 Q32 12 27.5 9 Z" fill="none" stroke="#000" strokeOpacity="0.28" strokeWidth="0.6" />
+      <path className="ts-seam" d="M27.5 9 Q32 3 36.5 9 Q32 12 27.5 9 Z" fill="none" strokeOpacity="0.28" strokeWidth="0.6" />
       {/* headlamp clusters */}
       {[
         [23.2, 21, 24],
         [40.8, 21, -24],
       ].map(([cx, cy, r]) => (
         <g key={cx} transform={`translate(${cx} ${cy}) rotate(${r})`}>
-          <ellipse rx="2.5" ry="5.2" fill="#1F1F1D" />
+          <ellipse className="tf-lamp-house" rx="2.5" ry="5.2" />
           <ellipse className={lamps ? "rail-lamp-on" : "rail-lamp-off"} rx="1.5" ry="3.9" />
         </g>
       ))}
       {/* cab roof: antenna fairing and the driver's hatch */}
-      <rect x="28" y="112" width="8" height="14" rx="3" fill="#D3D0C6" stroke="#000" strokeOpacity="0.22" strokeWidth="0.6" />
-      <path d="M6 118 H58" stroke="#000" strokeOpacity="0.1" strokeWidth="0.7" />
+      <rect className="tf-unit ts-seam" x="28" y="112" width="8" height="14" rx="3" strokeOpacity="0.22" strokeWidth="0.6" />
+      <path className="ts-seam" d="M6 118 H58" strokeOpacity="0.1" strokeWidth="0.7" />
       <RoofUnit y={EN - 84} />
     </>
   );
@@ -494,21 +494,21 @@ export default function TrainRail() {
       >
         <defs>
           <linearGradient id="rail-roof" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#8F8C84" />
-            <stop offset="0.09" stopColor="#CFCBC1" />
-            <stop offset="0.3" stopColor="#F6F4EE" />
-            <stop offset="0.46" stopColor="#FFFFFF" />
-            <stop offset="0.72" stopColor="#EFECE4" />
-            <stop offset="0.92" stopColor="#C2BEB4" />
-            <stop offset="1" stopColor="#85827A" />
+            <stop offset="0" className="tc-roof-0" />
+            <stop offset="0.09" className="tc-roof-1" />
+            <stop offset="0.3" className="tc-roof-2" />
+            <stop offset="0.46" className="tc-roof-3" />
+            <stop offset="0.72" className="tc-roof-4" />
+            <stop offset="0.92" className="tc-roof-5" />
+            <stop offset="1" className="tc-roof-6" />
           </linearGradient>
           <linearGradient id="rail-screen" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor="#34342F" />
-            <stop offset="1" stopColor="#0C0C0B" />
+            <stop offset="0" className="tc-screen-0" />
+            <stop offset="1" className="tc-screen-1" />
           </linearGradient>
           <linearGradient id="rail-glassfill" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#0B0C10" />
-            <stop offset="1" stopColor="#262A38" />
+            <stop offset="0" className="tc-glass-0" />
+            <stop offset="1" className="tc-glass-1" />
           </linearGradient>
           <linearGradient id="rail-nose" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="150">
             <stop offset="0" stopColor="#000" stopOpacity="0.34" />
@@ -516,8 +516,8 @@ export default function TrainRail() {
             <stop offset="1" stopColor="#000" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="rail-head" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor="#FFFFFF" stopOpacity="0.45" />
-            <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+            <stop offset="0" className="tc-head-0" stopOpacity="0.45" />
+            <stop offset="1" className="tc-head-1" stopOpacity="0" />
           </linearGradient>
           <radialGradient id="rail-charge" cx="0.5" cy="0.5" r="0.5">
             <stop offset="0" className="rail-charge-0" />
