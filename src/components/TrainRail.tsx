@@ -495,7 +495,7 @@ export default function TrainRail() {
           <feFlood className="rail-mark-edge" result="ink" />
           <feComposite in="ink" in2="ring" operator="in" result="edge" />
           <feComponentTransfer in="SourceGraphic" result="body">
-            <feFuncA type="linear" slope="0.45" />
+            <feFuncA type="linear" slope="0.28" />
           </feComponentTransfer>
           <feMerge result="mark">
             <feMergeNode in="body" />

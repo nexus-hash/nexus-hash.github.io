@@ -1221,7 +1221,7 @@ kbd {
   letter-spacing: 0.08em;
   text-transform: uppercase;
   fill: var(--sig);
-  /* the filter thins the fill to 45% and traces a solid edge round the silhouette;
+  /* the filter thins the fill and traces a solid edge round the silhouette;
      a plain stroke would also trace the overlapping contours inside the letters */
   filter: url(#rail-mark-fx);
   transition: opacity 0.3s var(--ease);
