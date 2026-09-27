@@ -320,8 +320,22 @@ kbd {
   max-width: 24ch;
 }
 .hero h1 em { font-style: italic; color: var(--accent); }
-.hero h1 .line { display: block; overflow: hidden; padding-bottom: 0.08em; }
-.hero h1 .line > span { display: block; }
+.hero h1 .line { display: block; padding-bottom: 0.08em; }
+/* typed out: untyped text keeps its place so nothing moves as it fills in */
+.hero-untyped { opacity: 0; }
+.hero-caret { position: relative; }
+.hero-caret::after {
+  content: "";
+  position: absolute;
+  left: 0.04em;
+  bottom: 0.02em;
+  width: 0.045em;
+  height: 0.82em;
+  background: var(--accent);
+}
+.hero-stop { animation: hero-blink 1.1s steps(1, end) infinite; }
+@keyframes hero-blink { 50% { opacity: 0; } }
+@media (prefers-reduced-motion: reduce) { .hero-stop { animation: none; } }
 
 .hero-foot {
   margin-top: clamp(32px, 4vw, 56px);
