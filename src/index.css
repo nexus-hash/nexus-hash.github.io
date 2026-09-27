@@ -298,17 +298,6 @@ kbd {
   margin-bottom: clamp(24px, 3vw, 40px);
 }
 .hero-kicker .mono { color: var(--ink-3); font-size: 0.8125rem; }
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 11px;
-  border-radius: 999px;
-  font-size: 0.8125rem;
-  color: var(--ok);
-  background: var(--ok-soft);
-}
-.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 .hero h1 {

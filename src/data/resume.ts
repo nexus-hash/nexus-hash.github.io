@@ -205,7 +205,6 @@ export const headline = {
   role: "Senior Software Engineer, Visa",
   statement: "I take systems apart to see how they work, then build better ones.",
   lede: "Senior Software Engineer at Visa, where I help move money at scale and build the AI agents that keep it moving. Outside work I fix bugs upstream in open source and build Dimensys, which teaches system design in 3D.",
-  availability: "Open to conversations",
 };
 
 /** Headline outcomes, set as ledger lines in the hero. `source` says where the number comes from. */

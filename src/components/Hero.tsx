@@ -75,10 +75,6 @@ export default function Hero() {
           transition={{ duration: 0.6 }}
         >
           <span>{headline.role}</span>
-          <span className="pill">
-            <i aria-hidden="true" />
-            {headline.availability}
-          </span>
         </m.p>
 
         <h1 aria-label={headline.statement}>
