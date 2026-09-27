@@ -25,10 +25,10 @@ export default function OpenSource() {
           label="Open source"
           title={
             <>
-              Fixing the tools I use, <em>upstream</em>.
+              Giving back to the <em>community</em>.
             </>
           }
-          sub="Bugs I hit, root-caused and sent back to the projects they came from."
+          sub="Fixes and improvements for the open source projects I rely on every day."
         />
 
         <div className="os">
