@@ -75,33 +75,6 @@ function RoofUnit({ y }: { y: number }) {
   );
 }
 
-/** The current collector: base frame on insulators, folding arm, and a twin-strip head. */
-function Pantograph({ y }: { y: number }) {
-  return (
-    <g>
-      <rect x="21" y={y} width="22" height="58" rx="2" fill="#000" fillOpacity="0.08" stroke="#4A4944" strokeWidth="1.1" />
-      {[
-        [21, y],
-        [43, y],
-        [21, y + 58],
-        [43, y + 58],
-      ].map(([cx, cy]) => (
-        <g key={`${cx}-${cy}`}>
-          <circle cx={cx} cy={cy} r="2.8" fill="#77756E" />
-          <circle cx={cx} cy={cy} r="1.3" fill="#B5B2A9" />
-        </g>
-      ))}
-      <path d={`M32 ${y + 54} V${y + 16}`} stroke="#2E2E2B" strokeWidth="2.6" strokeLinecap="round" />
-      <path d={`M32 ${y + 16} L27 ${y + 36} M32 ${y + 16} L37 ${y + 36}`} stroke="#3B3B37" strokeWidth="1.4" />
-      <circle cx="32" cy={y + 16} r="2.2" fill="#5A5953" />
-      {/* collector head, with down-turned horns at each end */}
-      <path d={`M5 ${y + 35} Q7 ${y + 33} 10 ${y + 33} H54 Q57 ${y + 33} 59 ${y + 35}`} stroke="#1D1D1B" strokeWidth="1.7" fill="none" />
-      <path d={`M5 ${y + 41} Q7 ${y + 39} 10 ${y + 39} H54 Q57 ${y + 39} 59 ${y + 41}`} stroke="#1D1D1B" strokeWidth="1.7" fill="none" />
-      <path d={`M27 ${y + 33} V${y + 39} M37 ${y + 33} V${y + 39}`} stroke="#3B3B37" strokeWidth="1.2" />
-    </g>
-  );
-}
-
 /** Tinted window bands along both flanks, seen from a steep angle, with pillars. */
 function SideGlass({ from, to }: { from: number; to: number }) {
   const pillars: number[] = [];
@@ -120,7 +93,7 @@ function SideGlass({ from, to }: { from: number; to: number }) {
   );
 }
 
-/** Roof details every car shares: seams between panels, the rain gutters, and the roof line cable. */
+/** Roof details every car shares: seams between panels and the rain gutters. */
 function RoofLines({ from, to }: { from: number; to: number }) {
   const seams: number[] = [];
   for (let y = from + 40; y < to - 10; y += 44) seams.push(y);
@@ -130,10 +103,6 @@ function RoofLines({ from, to }: { from: number; to: number }) {
         <path key={y} d={`M6 ${y} H${W - 6}`} stroke="#000" strokeOpacity="0.09" strokeWidth="0.7" />
       ))}
       <path d={`M7.2 ${from} V${to} M${W - 7.2} ${from} V${to}`} stroke="#000" strokeOpacity="0.16" strokeWidth="0.7" />
-      <path d={`M15 ${from} V${to}`} stroke="#6A6861" strokeWidth="1.1" />
-      {seams.map((y) => (
-        <circle key={y} cx="15" cy={y - 22} r="1.6" fill="#8E8B83" stroke="#000" strokeOpacity="0.3" strokeWidth="0.4" />
-      ))}
     </g>
   );
 }
@@ -576,7 +545,7 @@ export default function TrainRail() {
                 <SideGlass from={32} to={L - 32} />
                 <Doors at={[9, L - 26]} />
                 <path className="rail-stripe" d={`M8.6 0 V${L} M${W - 8.6} 0 V${L}`} />
-                {i === 1 ? <Pantograph y={22} /> : <RoofUnit y={26} />}
+                <RoofUnit y={26} />
                 <RoofUnit y={L - 78} />
                 <text className="rail-tag" textAnchor="middle" transform={`translate(${W / 2 + 4} ${WIN}) rotate(-90)`}>
                   {s.name}
