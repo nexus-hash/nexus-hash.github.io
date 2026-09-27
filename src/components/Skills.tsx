@@ -18,7 +18,7 @@ export default function Skills() {
 
   return (
     <section className="section skills" id="skills">
-      <SectionHead index="03" title="Skills" sub="The stack behind the systems above." />
+      <SectionHead index="04" title="Skills" sub="The stack behind the systems above." />
 
       <m.div
         className="skills-manifest glow"

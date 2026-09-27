@@ -20,7 +20,7 @@ export default function Contact() {
   return (
     <section className="section contact" id="contact">
       <SectionHead
-        index="05"
+        index="06"
         title="Let's talk"
         sub="Open to conversations about distributed systems, payments infrastructure, and agentic AI."
       />

@@ -5,7 +5,7 @@ import SectionHead from "./SectionHead";
 export default function Education() {
   return (
     <section className="section education" id="education">
-      <SectionHead index="04" title="Education" />
+      <SectionHead index="05" title="Education" />
 
       <m.div
         className="edu-row"

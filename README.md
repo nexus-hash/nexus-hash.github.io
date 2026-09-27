@@ -44,6 +44,7 @@ Then push the contents of `dist/` to a `gh-pages` branch (or the branch/folder y
 Everything — company names, dates, bullets, metrics, skills, projects, education, contact links — lives in `src/data/resume.ts` as typed data. Edit that file; the components render from it, so you shouldn't need to touch JSX for routine content changes.
 
 - **Projects** are an array (`projects`). Each entry can carry a `live` URL, a `repo` URL and an `image` (a file in `public/`, shown as a framed screenshot).
+- **Open source** rows are `openSource` — static data, no GitHub API calls at runtime. Update `status`/`diff` when a PR lands.
 - **Hero typewriter** phrases are `heroRoles`.
 - **Nav clock** shows *your* local time via `contact.timezone` (IANA name + short label) — change it if you move.
 - **Social previews**: `public/og.png` (1200×630) is what LinkedIn/Slack/X show when the link is shared. Regenerate it if the headline changes. The Open Graph / Twitter / JSON-LD tags live in `index.html`.
@@ -69,6 +70,7 @@ src/components/
   Experience.tsx             Manages which card is open (single-open-at-a-time), renders the pipeline rail
   ExperienceCard.tsx         Collapsed headline ⇄ expanded role detail (Framer layout animation)
   Projects.tsx                Terminal-panel project cards with framed, tilting screenshot + live/source links
+  OpenSource.tsx              `gh pr list`-style panel of upstream contributions (status, diffstat, linked issue)
   Skills.tsx                  Config-manifest style skill list, "+N more" reveal
   Education.tsx
   Contact.tsx                 Terminal-prompt contact block with copy-to-clipboard

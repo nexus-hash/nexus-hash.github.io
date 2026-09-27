@@ -9,6 +9,7 @@ import LiveClock from "./LiveClock";
 const links = [
   { id: "experience", label: "experience" },
   { id: "projects", label: "projects" },
+  { id: "open-source", label: "open source" },
   { id: "skills", label: "skills" },
   { id: "contact", label: "contact" },
 ];
