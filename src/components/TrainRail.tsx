@@ -84,7 +84,9 @@ export default function TrainRail() {
   const tipFadeRef = useRef<SVGLinearGradientElement>(null);
   const washRef = useRef<SVGPolygonElement>(null);
   const washFadeRef = useRef<SVGLinearGradientElement>(null);
+  const washMidRef = useRef<SVGStopElement>(null);
   const motesRef = useRef<HTMLCanvasElement>(null);
+  const grainRef = useRef<HTMLDivElement>(null);
   const patternRef = useRef<SVGPatternElement>(null);
   const [near, setNear] = useState(0);
   const nearRef = useRef(0);
@@ -100,13 +102,17 @@ export default function TrainRail() {
     const tipFade = tipFadeRef.current;
     const wash = washRef.current;
     const washFade = washFadeRef.current;
+    const washMid = washMidRef.current;
     const canvas = motesRef.current;
-    if (!dock || !track || !train || !show || !cone || !fade || !tip || !tipFade || !wash || !washFade || !canvas) return;
+    if (!dock || !track || !train || !show || !cone || !fade || !tip || !tipFade || !wash || !washFade || !washMid || !canvas)
+      return;
     const ctx = canvas.getContext("2d");
     const calm = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    // First page only: the beam carries on across the page, with dust drifting in it.
+    // Dust drifts on every page. On the first page it shows only inside the beam,
+    // which carries on across the page; elsewhere it floats freely, with no light.
     let proj: Projection | null = null;
+    let edgeX = 0; // right-hand limit for free-floating dust
     let dustRaf = 0;
     const dust = Array.from({ length: MOTES }, () => ({
       x: Math.random(),
@@ -123,9 +129,11 @@ export default function TrainRail() {
       const w = window.innerWidth;
       const h = window.innerHeight;
       ctx.clearRect(0, 0, w, h);
+      if (w < 720) return; // the train and its dust are hidden on small screens
       const p = proj;
-      if (!p) return;
-      const span = p.faceX - p.left;
+      const left = p ? p.left : 0;
+      const right = p ? p.faceX : edgeX;
+      const span = Math.max(1, right - left);
       for (const d of dust) {
         d.x += d.vx;
         d.y += d.vy;
@@ -133,15 +141,21 @@ export default function TrainRail() {
         if (d.x < 0) d.x += 1;
         if (d.y < 0) d.y += 1;
         if (d.y > 1) d.y -= 1;
-        const x = p.left + d.x * span;
+        const x = left + d.x * span;
         const y = d.y * h;
-        // inside the beam? the two rays leave the window and pass through the section's corners
-        const t = (p.faceX - x) / (p.faceX - p.sx);
-        const upper = p.wy - p.half + (p.top - (p.wy - p.half)) * t;
-        const lower = p.wy + p.half + (p.bottom - (p.wy + p.half)) * t;
-        if (y < upper || y > lower) continue;
-        const near = 1 - (p.faceX - x) / span; // brighter towards the window
-        const alpha = p.strength * (0.12 + near * 0.6) * (0.55 + 0.45 * Math.sin(d.tw));
+        const near = 1 - (right - x) / span; // brighter towards the train
+        const twinkle = 0.55 + 0.45 * Math.sin(d.tw);
+        let alpha: number;
+        if (p) {
+          // inside the beam? the two rays leave the window and pass through the section's corners
+          const t = (p.faceX - x) / (p.faceX - p.sx);
+          const upper = p.wy - p.half + (p.top - (p.wy - p.half)) * t;
+          const lower = p.wy + p.half + (p.bottom - (p.wy + p.half)) * t;
+          if (y < upper || y > lower) continue;
+          alpha = p.strength * (0.12 + near * 0.6) * twinkle;
+        } else {
+          alpha = (0.1 + near * 0.3) * twinkle;
+        }
         ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
         ctx.beginPath();
         ctx.arc(x, y, d.r, 0, Math.PI * 2);
@@ -211,20 +225,23 @@ export default function TrainRail() {
       if (visible && active === 0 && target) {
         const r = target.el.getBoundingClientRect();
         const sx = r.right - target.inset;
-        const left = Math.max(0, r.left - 80);
+        const left = 0; // the light runs to the edge of the screen, so it has no left-hand edge
         const t = (faceX - left) / (faceX - sx);
         const upper = wy - half + (r.top - (wy - half)) * t;
         const lower = wy + half + (r.bottom - (wy + half)) * t;
-        wash!.setAttribute("points", `${sx},${r.top} ${left},${upper} ${left},${lower} ${sx},${r.bottom}`);
+        // one shape from the window to the far left, so there is no seam at the content edge
+        wash!.setAttribute("points", `${faceX},${wy - half} ${left},${upper} ${left},${lower} ${faceX},${wy + half}`);
         washFade!.setAttribute("x1", String(left));
-        washFade!.setAttribute("x2", String(sx));
+        washFade!.setAttribute("x2", String(faceX));
+        washMid!.setAttribute("offset", String((sx - left) / (faceX - left)));
         next = { faceX, wy, half, sx, top: r.top, bottom: r.bottom, left, strength: focus };
       }
       wash!.style.opacity = next ? "1" : "0";
+      cone!.style.opacity = next ? "0" : "1";
       show!.classList.toggle("is-projecting", Boolean(next));
+      grainRef.current?.classList.toggle("is-on", Boolean(next));
       proj = next;
-      if (proj && !calm && !dustRaf) dustRaf = requestAnimationFrame(drawDust);
-      if (!proj && ctx) ctx.clearRect(0, 0, window.innerWidth, window.innerHeight);
+      if (!calm && !dustRaf) dustRaf = requestAnimationFrame(drawDust);
       show!.style.opacity = visible ? String(focus) : "0";
       tip!.style.opacity = visible ? String(focus) : "0";
 
@@ -242,6 +259,7 @@ export default function TrainRail() {
       line = d.height * 0.5;
       dockTop = d.top;
       trackLeft = d.right - trackW;
+      edgeX = trackLeft;
       const dpr = Math.min(2, window.devicePixelRatio || 1);
       canvas!.width = window.innerWidth * dpr;
       canvas!.height = window.innerHeight * dpr;
@@ -303,12 +321,14 @@ export default function TrainRail() {
       <defs>
         <linearGradient id="rail-wash-fade" ref={washFadeRef} gradientUnits="userSpaceOnUse" y1="0" y2="0">
           <stop offset="0" className="rail-wash-0" />
-          <stop offset="1" className="rail-fade-0" />
+          <stop offset="0.8" ref={washMidRef} className="rail-fade-0" />
+          <stop offset="1" className="rail-fade-1" />
         </linearGradient>
       </defs>
       <polygon ref={washRef} className="rail-wash" fill="url(#rail-wash-fade)" />
       <polygon ref={coneRef} className="rail-cone" fill="url(#rail-fade)" />
     </svg>
+    <div className="rail-grain" ref={grainRef} aria-hidden="true" />
     <canvas className="rail-motes" ref={motesRef} aria-hidden="true" />
     <aside className="rail" ref={dockRef} aria-hidden="true">
       {/* The guideway. Static: it never moves with the page. */}
