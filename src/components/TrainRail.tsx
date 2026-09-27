@@ -226,6 +226,9 @@ export default function TrainRail() {
       if (w < 720) return; // the train and its dust are hidden on small screens
       const p = proj;
       if (!p) return;
+      // pale dust in the dark, accent-coloured dust on paper
+      const paper = document.documentElement.dataset.theme === "light";
+      ctx.fillStyle = paper ? "#1a3cff" : "#dfe4ff";
       const left = p.left;
       const right = p.faceX;
       const span = Math.max(1, right - left);
@@ -245,6 +248,7 @@ export default function TrainRail() {
         const upper = p.wy - p.half + (p.top - (p.wy - p.half)) * t;
         const lower = p.wy + p.half + (p.bottom - (p.wy + p.half)) * t;
         if (y < upper || y > lower) continue;
+        if (paper && x < p.sx) continue; // on paper the light stops short of the content, and so does its dust
         const alpha = p.strength * (0.12 + near * 0.6) * twinkle;
         ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
         ctx.beginPath();

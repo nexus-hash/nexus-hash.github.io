@@ -1084,3 +1084,17 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .gw-chev { animation: none; opacity: 0.6; }
 }
+
+/* ---- Light theme: the projection ----
+   Pale periwinkle light over warm paper mixes to grey. On paper the beam is a
+   clean tint of the accent instead, with no film grain and no glow behind the
+   headings. It fades out before it reaches the content, so the page stays
+   paper-coloured. */
+:root[data-theme="light"] .rail-show { --sig: var(--accent); }
+:root[data-theme="light"] .rail-fade-0 { stop-opacity: 0.02; } /* all but gone by the time it reaches the text */
+:root[data-theme="light"] .rail-fade-1 { stop-opacity: 0.3; }
+:root[data-theme="light"] .rail-grain { display: none; }
+:root[data-theme="light"] .hero h1,
+:root[data-theme="light"] .section-head h2,
+:root[data-theme="light"] .contact h2,
+:root[data-theme="light"] .feature-title h3 { filter: none; }
