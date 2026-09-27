@@ -159,7 +159,8 @@ export default function TrainRail() {
       screens = trainStops.map((s) => {
         const el = document.querySelector(s.screen) ?? document.getElementById(s.id) ?? document.body;
         const cs = getComputedStyle(el);
-        const radius = parseFloat(cs.borderTopRightRadius) || 0;
+        const box = s.tuck ? document.querySelector(s.tuck) : null;
+        const radius = box ? parseFloat(getComputedStyle(box).borderTopRightRadius) || 0 : 0;
         // Rounded boxes: slide under the corner. Plain content: start the light a
         // little to the right of it, so text never touches the edge of the light.
         return { el, inset: (parseFloat(cs.paddingRight) || 0) + (radius ? radius + 4 : -BREATHE) };

@@ -302,15 +302,16 @@ export const flowStages = [
 
 /**
  * The train on the right-hand rail: the engine plus one coach per section.
- * `id` is the section's element id. `screen` is the box inside that section
- * the coach projects onto: its two right-hand corners anchor the beam.
+ * `id` is the section's element id. `screen` is what the coach projects onto,
+ * title included: its two right-hand corners anchor the beam. `tuck` names a
+ * rounded box inside it, if any, so the light can slide under its corners.
  */
-export const trainStops = [
+export const trainStops: { id: string; name: string; screen: string; tuck?: string }[] = [
   { id: "top", name: "Soumya", screen: "#top .wrap" },
-  { id: "experience", name: "Experience", screen: "#experience .trace" },
-  { id: "projects", name: "Projects", screen: "#projects .feature" },
-  { id: "open-source", name: "Open source", screen: "#open-source .os" },
-  { id: "skills", name: "Skills", screen: "#skills .manifest" },
+  { id: "experience", name: "Experience", screen: "#experience .wrap", tuck: "#experience .trace" },
+  { id: "projects", name: "Projects", screen: "#projects .wrap", tuck: "#projects .feature-shot" },
+  { id: "open-source", name: "Open source", screen: "#open-source .wrap" },
+  { id: "skills", name: "Skills", screen: "#skills .wrap" },
   { id: "contact", name: "Contact", screen: "#contact .wrap" },
 ];
 
