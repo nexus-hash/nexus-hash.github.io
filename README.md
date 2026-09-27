@@ -2,13 +2,15 @@
 
 Vite + React + TypeScript + Tailwind CSS v4 + Framer Motion. Static output, zero server runtime — built for GitHub Pages.
 
+**Design:** editorial "ledger" system — paper and ink with one accent, serif statements (Fraunces), sans body (Inter), mono for numbers only (JetBrains Mono). Light by default, follows the system theme, manual toggle persists. The previous dark "systems console" design is preserved on the `design/console` branch.
+
 ## Stack
 
 - **Vite** — build tool, dev server
 - **React 18 + TypeScript** — components in `src/components`, all content in `src/data/resume.ts`
-- **Tailwind CSS v4** (via `@tailwindcss/vite`) — imported in `src/index.css`; most of the actual visual system ("systems console" theme: grid background, cursor-tracked spotlight, terminal/manifest-styled panels) is hand-authored CSS in that same file, since Tailwind's utility classes aren't a great fit for that kind of effect
-- **Framer Motion** — the Experience-card expand/collapse uses its `layout` prop (FLIP-based, transform/opacity only — not a raw `height` tween), plus `whileInView` for scroll reveals
-- **lucide-react** — icons (GitHub/LinkedIn/Mail/close)
+- **Tailwind CSS v4** (via `@tailwindcss/vite`) — used for its reset; the design system itself (tokens, light/dark themes, every component) is hand-authored CSS in `src/index.css`
+- **Framer Motion** — loaded via `LazyMotion` + `domAnimation` (no layout animations, so the small feature set is enough); `whileInView` reveals, the hero line-rise, the trace span draw-in
+- **lucide-react** — icons
 
 ## Getting started
 
@@ -45,44 +47,43 @@ Everything — company names, dates, bullets, metrics, skills, projects, educati
 
 - **Projects** are an array (`projects`). Each entry can carry a `live` URL, a `repo` URL and an `image` (a file in `public/`, shown as a framed screenshot).
 - **Open source** rows are `openSource` — static data, no GitHub API calls at runtime. Update `status`/`diff` when a PR lands.
-- **Hero typewriter** phrases are `heroRoles`.
-- **Nav clock** shows *your* local time via `contact.timezone` (IANA name + short label) — change it if you move.
+- **Hero**: `headline` holds the role, lede and availability. The big statement's line breaks and italic words are set by hand in `Hero.tsx` (`LINES`) — keep `headline.statement` in sync, it is the accessible label.
+- **Ledger** rows are `ledger`; **flow diagram** stages are `flowStages`.
+- **Trace**: every role needs `start` (and `end` unless current) as `"YYYY-MM"` — that positions its span on the time axis.
+- **Local time** in the contact section uses `contact.timezone` (IANA name + short label) — change it if you move.
 - **Social previews**: `public/og.png` (1200×630) is what LinkedIn/Slack/X show when the link is shared. Regenerate it if the headline changes. The Open Graph / Twitter / JSON-LD tags live in `index.html`.
 
 ## Structure
 
 ```
-index.html                 Vite HTML entry
-src/main.tsx                React root
-src/App.tsx                 Section composition
-src/index.css                Tailwind import + design tokens + liquid/glass CSS
+index.html                 Vite HTML entry: meta/OG/JSON-LD + pre-paint theme script
+src/main.tsx                React root (LazyMotion)
+src/App.tsx                 Section composition, palette + theme state
+src/index.css                Design tokens (light/dark) + all component styles
 src/data/resume.ts           All content (edit this for updates)
-src/hooks/                   useActiveSection (nav scroll-spy), usePrefersReducedMotion, useCardGlow, useIsMac
+src/hooks/                   useActiveSection, usePrefersReducedMotion, useIsMac, useTheme
 src/components/
-  GridBackground.tsx         Fixed grid + cursor-tracked spotlight + scanline + grain overlay
-  Nav.tsx                    Full-width console header bar, scroll-spy, live clock, ⌘K hint, mobile menu
-  CommandPalette.tsx         ⌘K / Ctrl+K palette: jump to sections, open links, copy email
-  LiveClock.tsx              Ticking HH:MM:SS clock (owner's timezone) used in the nav
-  Typewriter.tsx             Cycling "$ building …" phrase in the hero
-  SectionHead.tsx            Shared "// 0N  Title" section heading used by every section below Hero
-  Hero.tsx                   Boot-status eyebrow, blinking terminal cursor, count-up stat strip
-  StatTile.tsx                Animates a stat's numeric prefix from 0 to its target when scrolled into view
-  Experience.tsx             Manages which card is open (single-open-at-a-time), renders the pipeline rail
-  ExperienceCard.tsx         Collapsed headline ⇄ expanded role detail (Framer layout animation)
-  Projects.tsx                Terminal-panel project cards with framed, tilting screenshot + live/source links
-  OpenSource.tsx              `gh pr list`-style panel of upstream contributions (status, diffstat, linked issue)
-  Skills.tsx                  Config-manifest style skill list, "+N more" reveal
-  Education.tsx
-  Contact.tsx                 Terminal-prompt contact block with copy-to-clipboard
+  TopBar.tsx                 Name, section links with scroll-spy, ⌘K button, theme toggle, mobile menu
+  Hero.tsx                   Statement headline (line-by-line rise), lede, links; hosts Flow + Ledger
+  Flow.tsx                   "fig. 1": payment events travelling merchants → gateway → Kafka → settlement,
+                             with the AI-triage tap. Horizontal on desktop, vertical on phones
+  Ledger.tsx                 Headline outcomes as ruled ledger lines (amount · entry · source)
+  CountUp.tsx                Counts a value like "100M+" up from 0 when scrolled into view
+  Trace.tsx                  Career as a distributed-trace waterfall: lane per company, span per role,
+                             real time axis; role index + detail panel
+  Projects.tsx                Full-width project feature with screenshot + live/source links
+  OpenSource.tsx              Ledger table of upstream contributions (status, diffstat, linked issue)
+  Skills.tsx                  Manifest: daily-driver stack in display type, the rest as chips
+  Contact.tsx                 Closing statement, email + copy, education, links, local time
+  CommandPalette.tsx         ⌘K / Ctrl+K: jump to sections, open links, copy email, toggle theme
+  SectionHead.tsx            Shared "0N / Label + serif title" heading
   Footer.tsx
 ```
 
 ## Notes
 
-- All animation targets `transform`/`opacity` (or Framer's `layout`, which resolves to transform under the hood) to stay off the main-thread layout/paint path — nothing animates raw `width`/`height`/`top`/`left`.
-- `backdrop-filter` glass panels have a solid-color fallback via `@supports not (...)` for browsers that don't support it.
+- Animation targets `transform`/`opacity` only.
 - Fonts are self-hosted via `@fontsource-variable` (imported in `src/index.css`) — no third-party font request.
-- Framer Motion is loaded through `LazyMotion` + `m` components (see `src/main.tsx`); use `m.div`, not `motion.div`, in new components or it will throw in strict mode.
-- `.glow` cards get a cursor-tracked border highlight from `useCardGlow` (pure CSS vars, no re-renders).
-- Respects `prefers-reduced-motion`: the mercury canvas paints a single static frame instead of animating, and all CSS transitions collapse to near-zero duration.
-- On viewports ≤640px, an expanded Experience card promotes to a full-screen sheet instead of growing in place (there isn't width for the staggered layout at that size).
+- Use `m.div`, not `motion.div`, in new components — `LazyMotion` is in strict mode and will throw otherwise.
+- Theme: CSS follows `prefers-color-scheme` unless `<html data-theme>` is set; the toggle writes that attribute and `localStorage.theme`.
+- Respects `prefers-reduced-motion`: the flow dots are not rendered, count-ups show their final value, and CSS transitions collapse to near-zero.

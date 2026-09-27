@@ -1,43 +1,47 @@
 import { useCallback, useState } from "react";
-import GridBackground from "./components/GridBackground";
-import Nav from "./components/Nav";
+import TopBar from "./components/TopBar";
 import Hero from "./components/Hero";
-import Experience from "./components/Experience";
+import Trace from "./components/Trace";
 import Projects from "./components/Projects";
 import OpenSource from "./components/OpenSource";
 import Skills from "./components/Skills";
-import Education from "./components/Education";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import CommandPalette from "./components/CommandPalette";
+import { useTheme } from "./hooks/useTheme";
 
 export default function App() {
   const [paletteOpen, setPaletteOpen] = useState(false);
   const openPalette = useCallback(() => setPaletteOpen(true), []);
   const closePalette = useCallback(() => setPaletteOpen(false), []);
+  const [theme, toggleTheme] = useTheme();
 
   return (
     <>
-      <GridBackground />
       <a className="skip-link" href="#main">
         Skip to content
       </a>
 
-      <Nav onOpenPalette={openPalette} />
+      <TopBar theme={theme} onToggleTheme={toggleTheme} onOpenPalette={openPalette} />
 
       <main id="main">
         <Hero />
-        <Experience />
+        <Trace />
         <Projects />
         <OpenSource />
         <Skills />
-        <Education />
         <Contact />
       </main>
 
       <Footer onOpenPalette={openPalette} />
 
-      <CommandPalette open={paletteOpen} onOpen={openPalette} onClose={closePalette} />
+      <CommandPalette
+        open={paletteOpen}
+        onOpen={openPalette}
+        onClose={closePalette}
+        theme={theme}
+        onToggleTheme={toggleTheme}
+      />
     </>
   );
 }

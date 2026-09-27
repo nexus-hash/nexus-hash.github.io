@@ -1,79 +1,53 @@
-import { AnimatePresence, m } from "framer-motion";
-import { useState } from "react";
+import { m } from "framer-motion";
 import { skills } from "../data/resume";
-import { useCardGlow } from "../hooks/useCardGlow";
 import SectionHead from "./SectionHead";
 
-function toKey(title: string): string {
-  return title
-    .toLowerCase()
-    .replace(/&/g, "and")
-    .replace(/[^a-z0-9]+/g, "_")
-    .replace(/^_|_$/g, "");
-}
-
 export default function Skills() {
-  const [expanded, setExpanded] = useState<Record<number, boolean>>({});
-  const glow = useCardGlow();
-
   return (
-    <section className="section skills" id="skills">
-      <SectionHead index="04" title="Skills" sub="The stack behind the systems above." />
+    <section className="section" id="skills">
+      <div className="wrap">
+        <SectionHead
+          index="04"
+          label="Skills"
+          title={
+            <>
+              The <em>stack</em> behind it.
+            </>
+          }
+          sub="Large type is what I reach for daily. The chips are what I have shipped with."
+        />
 
-      <m.div
-        className="skills-manifest glow"
-        onPointerMove={glow}
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-10% 0px" }}
-        transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="project-panel-bar">
-          <span />
-          <span />
-          <span />
-          <span className="project-panel-bar-label">skills.toml</span>
-        </div>
-        {skills.map((cluster, i) => {
-          const isOpen = Boolean(expanded[i]);
-          return (
-            <div className="skill-row" key={cluster.title}>
-              <p className="skill-key">{toKey(cluster.title)}</p>
-              <div className="skill-values">
-                {cluster.core.map((skill) => (
-                  <span className="skill-value" key={skill}>
-                    {skill}
-                  </span>
-                ))}
-                <AnimatePresence>
-                  {isOpen &&
-                    cluster.extra?.map((skill) => (
-                      <m.span
-                        className="skill-value"
-                        key={skill}
-                        initial={{ opacity: 0 }}
-                        animate={{ opacity: 1 }}
-                        exit={{ opacity: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        {skill}
-                      </m.span>
-                    ))}
-                </AnimatePresence>
+        <div className="manifest">
+          {skills.map((cluster, i) => (
+            <m.div
+              className="manifest-row"
+              key={cluster.title}
+              initial={{ opacity: 0, y: 16 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-6% 0px" }}
+              transition={{ duration: 0.55, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <p className="manifest-key">{cluster.title}</p>
+              <div>
+                <p className="manifest-core">
+                  {cluster.core.map((s) => (
+                    <span key={s}>{s}</span>
+                  ))}
+                </p>
                 {cluster.extra && cluster.extra.length > 0 && (
-                  <button
-                    className="skill-toggle"
-                    onClick={() => setExpanded((prev) => ({ ...prev, [i]: !prev[i] }))}
-                    aria-expanded={isOpen}
-                  >
-                    {isOpen ? "// show less" : `// +${cluster.extra.length} more`}
-                  </button>
+                  <ul className="manifest-extra" aria-label={`More ${cluster.title}`}>
+                    {cluster.extra.map((s) => (
+                      <li className="chip" key={s}>
+                        {s}
+                      </li>
+                    ))}
+                  </ul>
                 )}
               </div>
-            </div>
-          );
-        })}
-      </m.div>
+            </m.div>
+          ))}
+        </div>
+      </div>
     </section>
   );
 }

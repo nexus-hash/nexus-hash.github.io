@@ -1,56 +1,80 @@
-import { ArrowDown, Github, Linkedin, Mail } from "lucide-react";
-import { contact, heroRoles, heroStats } from "../data/resume";
-import StatTile from "./StatTile";
-import Typewriter from "./Typewriter";
+import type { ReactNode } from "react";
+import { m } from "framer-motion";
+import { ArrowDown, ArrowUpRight } from "lucide-react";
+import { contact, headline } from "../data/resume";
+import Flow from "./Flow";
+import Ledger from "./Ledger";
+
+// The statement is broken into lines by hand so each can rise in on its own
+// and so the two italic words land where they should. Keep it in sync with
+// `headline.statement` (used as the accessible label).
+const LINES: ReactNode[] = [
+  <>
+    I move <em>money</em>
+  </>,
+  <>at scale, and build</>,
+  <>
+    the <em>agents</em> that
+  </>,
+  <>keep it moving.</>,
+];
 
 export default function Hero() {
   return (
     <section className="hero" id="top">
-      <div className="hero-inner">
-        <p className="hero-eyebrow">
-          <span className="status-dot" aria-hidden="true" />
-          status: open to conversations
-        </p>
-        <h1 className="hero-name">
-          Soumya Ranjan
-          <br />
-          Tripathy<span className="hero-cursor" aria-hidden="true" />
-        </h1>
-        <p className="hero-type">
-          <span className="hero-type-prompt" aria-hidden="true">
-            $ building
-          </span>{" "}
-          <Typewriter phrases={heroRoles} />
-        </p>
-        <p className="hero-line">
-          I build the infrastructure that moves money and the agents that watch it. Currently
-          scaling payment systems and agentic AI pipelines at <span className="hero-accent">Visa</span>.
-        </p>
-        <div className="hero-actions">
-          <a href="#experience" className="btn btn-primary">
-            view_experience <ArrowDown size={14} aria-hidden="true" />
-          </a>
-          <a href={`mailto:${contact.email}`} className="btn btn-ghost">
-            get_in_touch
-          </a>
-        </div>
-        <div className="hero-links">
-          <a href={contact.github} target="_blank" rel="noopener noreferrer">
-            <Github size={15} /> GitHub
-          </a>
-          <a href={contact.linkedin} target="_blank" rel="noopener noreferrer">
-            <Linkedin size={15} /> LinkedIn
-          </a>
-          <a href={`mailto:${contact.email}`}>
-            <Mail size={15} /> Email
-          </a>
-        </div>
+      <div className="wrap">
+        <m.p
+          className="hero-kicker"
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ duration: 0.6 }}
+        >
+          <span>{headline.role}</span>
+          <span className="pill">
+            <i aria-hidden="true" />
+            {headline.availability}
+          </span>
+        </m.p>
 
-        <div className="stat-strip">
-          {heroStats.map((stat) => (
-            <StatTile key={stat.label} value={stat.value} label={stat.label} />
+        <h1 aria-label={headline.statement}>
+          {LINES.map((line, i) => (
+            <span className="line" key={i} aria-hidden="true">
+              <m.span
+                initial={{ y: "110%" }}
+                animate={{ y: 0 }}
+                transition={{ duration: 0.9, delay: 0.08 + i * 0.09, ease: [0.22, 1, 0.36, 1] }}
+              >
+                {line}
+              </m.span>
+            </span>
           ))}
-        </div>
+        </h1>
+
+        <m.div
+          className="hero-foot"
+          initial={{ opacity: 0, y: 14 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.7, delay: 0.55, ease: [0.22, 1, 0.36, 1] }}
+        >
+          <p className="hero-lede">{headline.lede}</p>
+          <div className="hero-links">
+            <a className="link is-down" href="#experience">
+              Read the trace <ArrowDown size={14} aria-hidden="true" />
+            </a>
+            <a className="link" href={`mailto:${contact.email}`}>
+              Email <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+            <a className="link" href={contact.github} target="_blank" rel="noopener noreferrer">
+              GitHub <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+            <a className="link" href={contact.linkedin} target="_blank" rel="noopener noreferrer">
+              LinkedIn <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+          </div>
+        </m.div>
+
+        <Flow />
+        <Ledger />
       </div>
     </section>
   );

@@ -1,129 +1,125 @@
 import { m } from "framer-motion";
 import { ArrowUpRight, GitMerge, GitPullRequestArrow, GitPullRequestDraft, Star } from "lucide-react";
 import { openSource, openSourceSearchUrl } from "../data/resume";
-import { useCardGlow } from "../hooks/useCardGlow";
 import SectionHead from "./SectionHead";
 
 const STATUS = {
-  merged: { label: "MERGED", Icon: GitMerge },
-  open: { label: "OPEN", Icon: GitPullRequestArrow },
-  "in-progress": { label: "IN PROGRESS", Icon: GitPullRequestDraft },
+  merged: { label: "Merged", Icon: GitMerge },
+  open: { label: "In review", Icon: GitPullRequestArrow },
+  "in-progress": { label: "In progress", Icon: GitPullRequestDraft },
 } as const;
 
-/** Split off the last word so the external-link icon can be glued to it and never wraps alone. */
-function titleHead(t: string) {
+/** Split off the last word so the link icon is glued to it and never wraps alone. */
+function splitTitle(t: string): [string, string] {
   const i = t.lastIndexOf(" ");
-  return i === -1 ? "" : t.slice(0, i + 1);
-}
-function titleTail(t: string) {
-  const i = t.lastIndexOf(" ");
-  return i === -1 ? t : t.slice(i + 1);
-}
-
-function DiffBar({ add, del }: { add: number; del: number }) {
-  const total = add + del || 1;
-  return (
-    <span className="oss-diff" title={`+${add} −${del}`}>
-      <span className="oss-diff-add">+{add}</span>
-      <span className="oss-diff-del">−{del}</span>
-      <span className="oss-diff-bar" aria-hidden="true">
-        <span style={{ flex: add / total }} className="is-add" />
-        <span style={{ flex: del / total }} className="is-del" />
-      </span>
-    </span>
-  );
+  return i === -1 ? ["", t] : [t.slice(0, i + 1), t.slice(i + 1)];
 }
 
 export default function OpenSource() {
-  const glow = useCardGlow();
   const merged = openSource.filter((c) => c.status === "merged").length;
   const repos = new Set(openSource.map((c) => c.repo)).size;
 
   return (
-    <section className="section open-source" id="open-source">
-      <SectionHead index="03" title="Open source" sub="Fixing the tools I actually use, upstream." />
+    <section className="section" id="open-source">
+      <div className="wrap">
+        <SectionHead
+          index="03"
+          label="Open source"
+          title={
+            <>
+              Fixing the tools I use, <em>upstream</em>.
+            </>
+          }
+          sub="Bugs I hit, root-caused and sent back to the projects they came from."
+        />
 
-      <m.div
-        className="oss-panel glow"
-        onPointerMove={glow}
-        initial={{ opacity: 0, y: 18 }}
-        whileInView={{ opacity: 1, y: 0 }}
-        viewport={{ once: true, margin: "-10% 0px" }}
-        transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
-      >
-        <div className="project-panel-bar">
-          <span />
-          <span />
-          <span />
-          <span className="project-panel-bar-label">$ gh pr list --author nexus-hash</span>
-          <span className="oss-bar-count">
-            {openSource.length} results · {merged} merged · {repos} repos
-          </span>
-        </div>
+        <div className="os">
+          <div className="os-head" aria-hidden="true">
+            <span>Status</span>
+            <span>Change</span>
+            <span>Diff</span>
+            <span>Date</span>
+          </div>
 
-        <ol className="oss-list">
-          {openSource.map((c, i) => {
-            const { label, Icon } = STATUS[c.status];
-            return (
-              <m.li
-                key={`${c.repo}#${c.number}`}
-                className="oss-row"
-                initial={{ opacity: 0, x: -10 }}
-                whileInView={{ opacity: 1, x: 0 }}
-                viewport={{ once: true, margin: "-5% 0px" }}
-                transition={{ duration: 0.45, delay: i * 0.07, ease: [0.22, 1, 0.36, 1] }}
-              >
-                <span className={`oss-status is-${c.status}`}>
-                  <Icon size={13} aria-hidden="true" />
-                  {label}
-                </span>
+          <ol>
+            {openSource.map((c, i) => {
+              const { label, Icon } = STATUS[c.status];
+              const [head, tail] = splitTitle(c.title);
+              const total = (c.diff?.add ?? 0) + (c.diff?.del ?? 0) || 1;
+              return (
+                <m.li
+                  className="os-row"
+                  key={`${c.repo}#${c.number}`}
+                  initial={{ opacity: 0, y: 16 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, margin: "-6% 0px" }}
+                  transition={{ duration: 0.55, delay: i * 0.06, ease: [0.22, 1, 0.36, 1] }}
+                >
+                  <span className={`os-status is-${c.status}`}>
+                    <Icon size={13} aria-hidden="true" />
+                    {label}
+                  </span>
 
-                <div className="oss-body">
-                  <div className="oss-meta">
-                    <a className="oss-repo" href={`https://github.com/${c.repo}`} target="_blank" rel="noopener noreferrer">
-                      {c.repo}
-                    </a>
-                    <span className="oss-stars">
-                      <Star size={11} aria-hidden="true" />
-                      {c.stars}
-                    </span>
-                    <span className="oss-lang">{c.language}</span>
-                    <span className="oss-date">
-                      #{c.number} · {c.date}
-                    </span>
-                  </div>
-
-                  <h3 className="oss-title">
-                    <a href={c.url} target="_blank" rel="noopener noreferrer">
-                      {titleHead(c.title)}
-                      <span className="oss-title-tail">
-                        {titleTail(c.title)}
-                        <ArrowUpRight size={15} aria-hidden="true" />
+                  <div className="os-main">
+                    <p className="os-repo">
+                      <a href={`https://github.com/${c.repo}`} target="_blank" rel="noopener noreferrer">
+                        {c.repo}
+                      </a>
+                      <span>
+                        <Star size={11} aria-hidden="true" />
+                        {c.stars}
                       </span>
-                    </a>
-                  </h3>
-                  <p className="oss-summary">{c.summary}</p>
-
-                  <div className="oss-foot">
-                    {c.diff && <DiffBar add={c.diff.add} del={c.diff.del} />}
+                      <span>{c.language}</span>
+                      <span>#{c.number}</span>
+                    </p>
+                    <h3 className="os-title">
+                      <a href={c.url} target="_blank" rel="noopener noreferrer">
+                        {head}
+                        <span className="os-title-tail">
+                          {tail}
+                          <ArrowUpRight size={16} aria-hidden="true" />
+                        </span>
+                      </a>
+                    </h3>
+                    <p className="os-summary">{c.summary}</p>
                     {c.issue && (
-                      <a className="oss-issue" href={c.issue.url} target="_blank" rel="noopener noreferrer">
+                      <a className="os-issue" href={c.issue.url} target="_blank" rel="noopener noreferrer">
                         {c.status === "merged" ? "closes" : "refs"} #{c.issue.number}
                       </a>
                     )}
                   </div>
-                </div>
-              </m.li>
-            );
-          })}
-        </ol>
 
-        <div className="oss-panel-foot">
-          <a href={openSourceSearchUrl} target="_blank" rel="noopener noreferrer">
-            $ gh search prs --author nexus-hash <span>--all</span> <ArrowUpRight size={13} aria-hidden="true" />
-          </a>
+                  <div className="os-diff">
+                    {c.diff && (
+                      <>
+                        <span>
+                          <span className="add">+{c.diff.add}</span>
+                          <span className="del">−{c.diff.del}</span>
+                        </span>
+                        <span className="os-diff-bar" aria-hidden="true">
+                          <span className="add" style={{ flex: c.diff.add / total }} />
+                          <span className="del" style={{ flex: c.diff.del / total }} />
+                        </span>
+                      </>
+                    )}
+                  </div>
+
+                  <p className="os-date">{c.date}</p>
+                </m.li>
+              );
+            })}
+          </ol>
+
+          <div className="os-foot">
+            <span className="mono">
+              {openSource.length} entries · {merged} merged · {repos} repositories
+            </span>
+            <a className="link" href={openSourceSearchUrl} target="_blank" rel="noopener noreferrer">
+              Every pull request on GitHub <ArrowUpRight size={14} aria-hidden="true" />
+            </a>
+          </div>
         </div>
-      </m.div>
+      </div>
     </section>
   );
 }

@@ -2,6 +2,10 @@ export interface ExperienceRole {
   title: string;
   stack: string;
   dates?: string;
+  /** "YYYY-MM". Drives the span position in the career trace. */
+  start: string;
+  /** "YYYY-MM"; omit for a role that is still running. */
+  end?: string;
   bullets: string[];
 }
 
@@ -32,6 +36,7 @@ export const experience: ExperienceEntry[] = [
         title: "Senior Software Engineer",
         stack: "Vert.x · Spring · Python · Kafka",
         dates: "Jul 2025 — Present",
+        start: "2025-07",
         bullets: [
           "Contributed to an AI triage and RCA pipeline processing 1M+ logs/sec, drastically cutting production incident MTTR.",
           "Designed and built a distributed, developer-facing RAG platform with hybrid search, reducing org-wide token spend by 15%.",
@@ -43,6 +48,8 @@ export const experience: ExperienceEntry[] = [
         title: "Software Engineer",
         stack: "Vert.x · Spring · Kafka · SQL",
         dates: "Jun 2023 — Jun 2025",
+        start: "2023-06",
+        end: "2025-06",
         bullets: [
           "Worked on the PACE agentic platform, automating 20% of org-wide Jira issues to boost developer throughput.",
           "Built and ran a Claude Code agent integrated into GitHub workflows for documentation generation across 100+ repositories, saving 450 engineering days.",
@@ -53,7 +60,10 @@ export const experience: ExperienceEntry[] = [
       {
         title: "Software Development Intern",
         stack: "Java · Vert.x · SQL",
-        dates: "Jan 2023 — Jun 2023",
+        // NOTE: intern dates are an assumption (not in the original résumé data) — correct if wrong.
+        dates: "Jan 2023 — May 2023",
+        start: "2023-01",
+        end: "2023-05",
         bullets: [
           "Developed an on-demand settlement generation API that decoupled Visa support workflows from engineering, cutting delivery time for custom requests.",
         ],
@@ -72,6 +82,9 @@ export const experience: ExperienceEntry[] = [
       {
         title: "Backend Engineer",
         stack: "TypeScript · Kubernetes",
+        dates: "Sep 2022 — Dec 2022",
+        start: "2022-09",
+        end: "2022-12",
         bullets: [
           "Modernized service infrastructure by orchestrating 35 services on Kubernetes.",
           "Refactored 5 services to TypeScript for enhanced type safety and scale.",
@@ -90,6 +103,9 @@ export const experience: ExperienceEntry[] = [
       {
         title: "Backend Engineer Intern",
         stack: "Go · AWS · SQL",
+        dates: "Jul 2022 — Aug 2022",
+        start: "2022-07",
+        end: "2022-08",
         bullets: [
           "Engineered scalable asset metadata and ML-driven recommendation APIs for the Mable platform, powering high-throughput retrieval and real-time user personalization.",
         ],
@@ -108,6 +124,9 @@ export const experience: ExperienceEntry[] = [
       {
         title: "Full Stack Developer Intern",
         stack: "React · Node.js · AWS · MongoDB",
+        dates: "Jan 2022 — Jun 2022",
+        start: "2022-01",
+        end: "2022-06",
         bullets: [
           "Led end-to-end development of scalable EdTech and custom web platforms across diverse client engagements, directly serving 200K+ users.",
         ],
@@ -254,27 +273,39 @@ export const education = {
   school: "Vellore Institute of Technology",
   degree: "B.Tech, Computer Science Engineering",
   dates: "Jul 2019 — Jul 2023",
+  start: "2019-07",
+  end: "2023-07",
 };
 
-export const heroStats = [
-  { value: "10x", label: "settlement throughput" },
-  { value: "100M+", label: "payment events / day" },
-  { value: "450", label: "engineering days saved via AI" },
+export const headline = {
+  role: "Senior Software Engineer, Visa",
+  statement: "I move money at scale, and build the agents that keep it moving.",
+  lede: "Backend engineer working on distributed payment infrastructure and agentic AI. Three years at Visa across settlement, event processing and developer tooling.",
+  availability: "Open to conversations",
+};
+
+/** Headline outcomes, set as ledger lines in the hero. `source` says where the number comes from. */
+export const ledger = [
+  { value: "10x", label: "faster settlement", detail: "Visa's two largest payment gateways, migrated to multithreaded microservices", source: "Visa · 2025" },
+  { value: "100M+", label: "payment events a day", detail: "Batch event processing system built from scratch, across 50K+ merchants", source: "Visa · 2024" },
+  { value: "1M+", label: "log lines a second", detail: "AI triage and root-cause pipeline that cut production incident MTTR", source: "Visa · 2025" },
+  { value: "450", label: "engineering days saved", detail: "Claude Code agent generating documentation across 100+ repositories", source: "Visa · 2024" },
 ];
 
-/** Phrases cycled by the hero typewriter. */
-export const heroRoles = [
-  "distributed payment systems",
-  "agentic AI pipelines",
-  "Kafka event platforms",
-  "developer-facing RAG tooling",
+/** Stages of the animated flow diagram in the hero. */
+export const flowStages = [
+  { id: "merchants", label: "Merchants", note: "50K+" },
+  { id: "gateway", label: "Gateway", note: "24x TPS" },
+  { id: "stream", label: "Kafka", note: "100M+/day" },
+  { id: "settle", label: "Settlement", note: "10x faster" },
+  { id: "agents", label: "AI triage", note: "1M+ logs/s" },
 ];
 
 export const contact = {
   email: "srtsoumya21@gmail.com",
   github: "https://github.com/nexus-hash",
   linkedin: "https://linkedin.com/in/nexus-hash",
-  /** Shown in the nav clock so visitors see *your* local time, not theirs. */
+  /** Shown in the footer so visitors see *your* local time, not theirs. */
   timezone: { iana: "Asia/Kolkata", label: "IST" },
 };
 

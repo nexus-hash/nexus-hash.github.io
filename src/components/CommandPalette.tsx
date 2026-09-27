@@ -9,7 +9,8 @@ import {
   FolderGit2,
   GitPullRequest,
   Github,
-  GraduationCap,
+  Moon,
+  Sun,
   Linkedin,
   Mail,
   Search,
@@ -32,6 +33,8 @@ interface Props {
   open: boolean;
   onOpen: () => void;
   onClose: () => void;
+  theme: "light" | "dark";
+  onToggleTheme: () => void;
 }
 
 function jump(id: string) {
@@ -49,7 +52,7 @@ function openExternal(url: string) {
  * ⌘K / Ctrl+K command palette: jump to sections, open links, copy email.
  * Keyboard: ↑↓ move, Enter run, Esc close. Focus returns to whatever opened it.
  */
-export default function CommandPalette({ open, onOpen, onClose }: Props) {
+export default function CommandPalette({ open, onOpen, onClose, theme, onToggleTheme }: Props) {
   // Global shortcut.
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
@@ -63,11 +66,15 @@ export default function CommandPalette({ open, onOpen, onClose }: Props) {
     return () => window.removeEventListener("keydown", onKey);
   }, [open, onOpen, onClose]);
 
-  return <AnimatePresence>{open && <PaletteDialog onClose={onClose} />}</AnimatePresence>;
+  return (
+    <AnimatePresence>
+      {open && <PaletteDialog onClose={onClose} theme={theme} onToggleTheme={onToggleTheme} />}
+    </AnimatePresence>
+  );
 }
 
 /** Mounted fresh on every open, so query/cursor state always starts clean. */
-function PaletteDialog({ onClose }: { onClose: () => void }) {
+function PaletteDialog({ onClose, theme, onToggleTheme }: Pick<Props, "onClose" | "theme" | "onToggleTheme">) {
   const [query, setQuery] = useState("");
   const [cursor, setCursor] = useState(0);
   const [copied, setCopied] = useState(false);
@@ -89,16 +96,24 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
       }));
     return [
       { id: "top", label: "Back to top", hint: "#top", group: "navigate", icon: ArrowUp, run: () => jump("top") },
-      { id: "experience", label: "Experience", hint: "// 01", group: "navigate", icon: Briefcase, run: () => jump("experience"), keywords: "work visa jobs" },
-      { id: "projects", label: "Projects", hint: "// 02", group: "navigate", icon: FolderGit2, run: () => jump("projects") },
-      { id: "open-source", label: "Open source", hint: "// 03", group: "navigate", icon: GitPullRequest, run: () => jump("open-source"), keywords: "oss contributions pull requests jupyterlab p5" },
-      { id: "skills", label: "Skills", hint: "// 04", group: "navigate", icon: Wrench, run: () => jump("skills"), keywords: "stack tools" },
-      { id: "education", label: "Education", hint: "// 05", group: "navigate", icon: GraduationCap, run: () => jump("education"), keywords: "college university vit" },
-      { id: "contact", label: "Contact", hint: "// 06", group: "navigate", icon: Mail, run: () => jump("contact"), keywords: "email talk" },
+      { id: "experience", label: "Experience", hint: "01", group: "navigate", icon: Briefcase, run: () => jump("experience"), keywords: "work visa jobs trace career" },
+      { id: "projects", label: "Projects", hint: "02", group: "navigate", icon: FolderGit2, run: () => jump("projects") },
+      { id: "open-source", label: "Open source", hint: "03", group: "navigate", icon: GitPullRequest, run: () => jump("open-source"), keywords: "oss contributions pull requests jupyterlab p5" },
+      { id: "skills", label: "Skills", hint: "04", group: "navigate", icon: Wrench, run: () => jump("skills"), keywords: "stack tools" },
+      { id: "contact", label: "Contact", hint: "05", group: "navigate", icon: Mail, run: () => jump("contact"), keywords: "email talk education college vit" },
       { id: "github", label: "GitHub", hint: contact.github.replace(/^https?:\/\//, ""), group: "links", icon: Github, run: () => openExternal(contact.github) },
       { id: "linkedin", label: "LinkedIn", hint: contact.linkedin.replace(/^https?:\/\//, ""), group: "links", icon: Linkedin, run: () => openExternal(contact.linkedin) },
       ...projectLinks,
       { id: "email", label: "Send email", hint: contact.email, group: "actions", icon: Mail, run: () => { window.location.href = `mailto:${contact.email}`; } },
+      {
+        id: "theme",
+        label: theme === "dark" ? "Switch to light theme" : "Switch to dark theme",
+        hint: theme,
+        group: "actions",
+        icon: theme === "dark" ? Sun : Moon,
+        run: onToggleTheme,
+        keywords: "dark light mode appearance",
+      },
       {
         id: "copy-email",
         label: "Copy email address",
@@ -114,7 +129,7 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
         keywords: "clipboard",
       },
     ];
-  }, [copied]);
+  }, [copied, theme, onToggleTheme]);
 
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
@@ -144,7 +159,7 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
     const cmd = filtered[i];
     if (!cmd) return;
     cmd.run();
-    if (cmd.id !== "copy-email") onClose();
+    if (cmd.id !== "copy-email" && cmd.id !== "theme") onClose();
   }
 
   function onInputKey(e: React.KeyboardEvent<HTMLInputElement>) {
@@ -197,7 +212,7 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
               <input
                 ref={inputRef}
                 className="palette-input"
-                placeholder="type a command or search…"
+                placeholder="Search sections, links, actions…"
                 value={query}
                 onChange={(e) => {
                   setQuery(e.target.value);
@@ -221,7 +236,7 @@ function PaletteDialog({ onClose }: { onClose: () => void }) {
                 if (items.length === 0) return null;
                 return (
                   <li key={g.key} className="palette-group">
-                    <p className="palette-group-label">{`// ${g.label}`}</p>
+                    <p className="palette-group-label">{g.label}</p>
                     <ul role="group" aria-label={g.label}>
                       {items.map((cmd) => {
                         runningIndex += 1;

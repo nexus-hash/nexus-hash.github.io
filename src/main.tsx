@@ -1,15 +1,15 @@
 import React from "react";
 import ReactDOM from "react-dom/client";
-import { LazyMotion, domMax } from "framer-motion";
+import { LazyMotion, domAnimation } from "framer-motion";
 import App from "./App";
 import "./index.css";
 
-// LazyMotion + `m` components: only the animation features we use (domMax,
-// because the experience cards need `layout`) ship in the bundle, instead of
-// the full `motion` runtime.
+// LazyMotion + `m` components with the small `domAnimation` feature set
+// (animate / whileInView / exit). No layout animations are used, so the
+// heavier `domMax` bundle isn't needed.
 ReactDOM.createRoot(document.getElementById("root")!).render(
   <React.StrictMode>
-    <LazyMotion features={domMax} strict>
+    <LazyMotion features={domAnimation} strict>
       <App />
     </LazyMotion>
   </React.StrictMode>
