@@ -172,6 +172,8 @@ export interface Project {
   repo?: string;
   /** Path under /public — shown as a framed screenshot in the project card. */
   image?: string;
+  /** The same view in the project's light theme, shown when this site is in light mode. */
+  imageLight?: string;
   status: "live" | "wip" | "archived";
 }
 
@@ -186,6 +188,7 @@ export const projects: Project[] = [
     live: "https://dimensys.vercel.app",
     repo: "https://github.com/nexus-hash/dimensys",
     image: "dimensys.jpg",
+    imageLight: "dimensys-light.jpg",
     status: "live",
   },
 ];

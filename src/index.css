@@ -1207,3 +1207,9 @@ kbd {
 :root[data-theme="light"] .rail-charge-0 { stop-color: #1a3cff; stop-opacity: 0.16; }
 :root[data-theme="light"] .rail-charge-1 { stop-color: #1a3cff; }
 :root[data-theme="light"] .rail-beam { opacity: 0.5; }
+
+/* Project previews follow the theme: only the matching screenshot is shown, and loaded. */
+.feature-shot .shot-light { display: none; }
+:root[data-theme="light"] .feature-shot-frame { background: #fff; }
+:root[data-theme="light"] .shot-light { display: block; }
+:root[data-theme="light"] .shot-dark { display: none; }
