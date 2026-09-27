@@ -235,7 +235,7 @@ export const flowStages = [
  * rounded box, if any, so the light can slide under its corners.
  */
 export const trainStops: { id: string; name: string; screen: string; tuck?: string }[] = [
-  { id: "top", name: "Soumya", screen: "#top .wrap" },
+  { id: "top", name: "Nexus", screen: "#top .wrap" },
   { id: "impact", name: "Impact", screen: "#impact .wrap" },
   { id: "experience", name: "Experience", screen: "#experience .trace", tuck: "#experience .trace" },
   { id: "projects", name: "Projects", screen: "#projects .feature", tuck: "#projects .feature-shot" },
