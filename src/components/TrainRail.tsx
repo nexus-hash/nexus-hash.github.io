@@ -6,8 +6,10 @@ import { trainStops } from "../data/resume";
  * bullet train seen from above, nose pointing up. The track never moves.
  * Scrolling down drives the train up the track, one car per section; the car
  * level with the projection line lights a side window and projects onto its
- * section: two lines run from the top and bottom of the window to the
- * section's top-right and bottom-right corners, with light between them.
+ * section: a soft cone of light from the window to the section's top-right
+ * and bottom-right corners. The cone stays pinned to those corners, so part
+ * of it is off screen when a corner is. It is painted behind the page
+ * content, so a section's rounded corners sit on top of the light.
  *
  * All geometry below is in "train units"; one car is 64 units wide.
  */
@@ -63,8 +65,9 @@ export default function TrainRail() {
   const trainRef = useRef<SVGSVGElement>(null);
   const showRef = useRef<SVGSVGElement>(null);
   const coneRef = useRef<SVGPolygonElement>(null);
-  const edgeRef = useRef<SVGPathElement>(null);
   const fadeRef = useRef<SVGLinearGradientElement>(null);
+  const tipRef = useRef<SVGPolygonElement>(null);
+  const tipFadeRef = useRef<SVGLinearGradientElement>(null);
   const patternRef = useRef<SVGPatternElement>(null);
   const [near, setNear] = useState(0);
   const nearRef = useRef(0);
@@ -75,15 +78,17 @@ export default function TrainRail() {
     const train = trainRef.current;
     const show = showRef.current;
     const cone = coneRef.current;
-    const edge = edgeRef.current;
     const fade = fadeRef.current;
-    if (!dock || !track || !train || !show || !cone || !edge || !fade) return;
+    const tip = tipRef.current;
+    const tipFade = tipFadeRef.current;
+    if (!dock || !track || !train || !show || !cone || !fade || !tip || !tipFade) return;
 
     let k = 1; // px per train unit
     let line = 0; // projection line, px from the top of the dock
     let dockTop = 0; // top of the dock in the viewport
+    let trackLeft = 0; // left of the guideway in the viewport
     let faceX = 0; // x of the train's left face in the viewport
-    let screens: { el: Element; pad: number }[] = [];
+    let screens: { el: Element; inset: number }[] = [];
     let raf = 0;
 
     /** Fractional car index level with the projection line, from the scroll position. */
@@ -110,28 +115,30 @@ export default function TrainRail() {
       train!.style.transform = `translate3d(0, ${line - (windowY(0) + pos * PITCH - VIEW.y) * k}px, 0)`;
 
       // The show: from the lit window to the two right-hand corners of its section.
+      // Always pinned to the real corners, on screen or not.
       const wy = dockTop + line + (active - pos) * PITCH * k; // where the active window is right now
       const half = (WINH * k) / 2;
       const target = screens[active];
       let visible = false;
       if (target) {
         const r = target.el.getBoundingClientRect();
-        const sx = r.right - target.pad;
-        // anchor to the corners, or to where the section meets the edge of the view
-        const lo = dockTop + 12;
-        const hi = window.innerHeight - 12;
-        const top = Math.min(hi, Math.max(lo, r.top));
-        const bottom = Math.min(hi, Math.max(lo, r.bottom));
-        if (bottom - top > 24 && faceX - sx > 8) {
+        const sx = r.right - target.inset; // tucked just under the section's edge
+        if (r.height > 0 && faceX - sx > 8) {
           visible = true;
-          cone!.setAttribute("points", `${sx},${top} ${faceX},${wy - half} ${faceX},${wy + half} ${sx},${bottom}`);
-          edge!.setAttribute("d", `M${sx} ${top} L${faceX} ${wy - half} M${sx} ${bottom} L${faceX} ${wy + half} M${sx} ${top} V${bottom}`);
+          const pts = (dx: number, dy: number) =>
+            `${sx - dx},${r.top - dy} ${faceX - dx},${wy - half - dy} ${faceX - dx},${wy + half - dy} ${sx - dx},${r.bottom - dy}`;
+          cone!.setAttribute("points", pts(0, 0));
           fade!.setAttribute("x1", String(sx));
           fade!.setAttribute("x2", String(faceX));
+          // the last stretch, over the guideway, is drawn above the track only
+          tip!.setAttribute("points", pts(trackLeft, dockTop));
+          tipFade!.setAttribute("x1", String(sx - trackLeft));
+          tipFade!.setAttribute("x2", String(faceX - trackLeft));
         }
       }
       const focus = Math.max(0.25, 1 - Math.abs(pos - active) * 1.5);
       show!.style.opacity = visible ? String(focus) : "0";
+      tip!.style.opacity = visible ? String(focus) : "0";
 
       if (active !== nearRef.current) {
         nearRef.current = active;
@@ -146,10 +153,14 @@ export default function TrainRail() {
       const d = dock!.getBoundingClientRect();
       line = d.height * 0.5;
       dockTop = d.top;
+      trackLeft = d.right - trackW;
       faceX = d.right - (trackW / 2 + (W / 2) * k) + 1.5 * k;
       screens = trainStops.map((s) => {
         const el = document.querySelector(s.screen) ?? document.getElementById(s.id) ?? document.body;
-        return { el, pad: parseFloat(getComputedStyle(el).paddingRight) || 0 };
+        const cs = getComputedStyle(el);
+        const radius = parseFloat(cs.borderTopRightRadius) || 0;
+        // stop at the content edge; where the box has rounded corners, slide under them
+        return { el, inset: (parseFloat(cs.paddingRight) || 0) + (radius ? radius + 4 : 0) };
       });
       train!.style.width = `${VIEW.w * k}px`;
       train!.style.height = `${VIEW.h * k}px`;
@@ -192,7 +203,6 @@ export default function TrainRail() {
         </linearGradient>
       </defs>
       <polygon ref={coneRef} className="rail-cone" fill="url(#rail-fade)" />
-      <path ref={edgeRef} className="rail-edge" />
     </svg>
     <aside className="rail" ref={dockRef} aria-hidden="true">
       {/* The guideway. Static: it never moves with the page. */}
@@ -221,6 +231,16 @@ export default function TrainRail() {
         <div className="rail-guide rail-guide-l" />
         <div className="rail-guide rail-guide-r" />
       </div>
+
+      <svg className="rail-tip" aria-hidden="true">
+        <defs>
+          <linearGradient id="rail-tip-fade" ref={tipFadeRef} gradientUnits="userSpaceOnUse" y1="0" y2="0">
+            <stop offset="0" className="rail-fade-0" />
+            <stop offset="1" className="rail-fade-1" />
+          </linearGradient>
+        </defs>
+        <polygon ref={tipRef} className="rail-cone" fill="url(#rail-tip-fade)" />
+      </svg>
 
       <svg
         className="rail-train"
