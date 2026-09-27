@@ -22,6 +22,7 @@ const WIN = 130; // window centre, measured from the rear end of a car
 const WINH = 26; // height of the projecting window
 const PADX = 40; // room either side for glow and shadow
 const AHEAD = 250; // room ahead of the nose for the headlight beam
+const BREATHE = 36; // px of clear space between plain content and the light
 
 const N = trainStops.length;
 const LENGTH = EN + (N - 1) * PITCH;
@@ -159,8 +160,9 @@ export default function TrainRail() {
         const el = document.querySelector(s.screen) ?? document.getElementById(s.id) ?? document.body;
         const cs = getComputedStyle(el);
         const radius = parseFloat(cs.borderTopRightRadius) || 0;
-        // stop at the content edge; where the box has rounded corners, slide under them
-        return { el, inset: (parseFloat(cs.paddingRight) || 0) + (radius ? radius + 4 : 0) };
+        // Rounded boxes: slide under the corner. Plain content: start the light a
+        // little to the right of it, so text never touches the edge of the light.
+        return { el, inset: (parseFloat(cs.paddingRight) || 0) + (radius ? radius + 4 : -BREATHE) };
       });
       train!.style.width = `${VIEW.w * k}px`;
       train!.style.height = `${VIEW.h * k}px`;

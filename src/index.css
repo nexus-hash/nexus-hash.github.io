@@ -32,7 +32,7 @@
   --font-mono: "JetBrains Mono Variable", "JetBrains Mono", ui-monospace, SFMono-Regular, monospace;
 
   --ease: cubic-bezier(0.22, 1, 0.36, 1);
-  --max-w: 1240px;
+  --max-w: 1580px;
   --gutter: clamp(20px, 5vw, 64px);
   /* train rail: car width, track width, and the space the dock reserves on the right */
   --car: clamp(46px, 4.4vw, 70px);
