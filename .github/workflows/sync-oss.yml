@@ -1,0 +1,76 @@
+name: Sync open source contributions
+
+# Once a week, refresh the open source numbers from GitHub. If the contributions
+# changed, open a pull request with the new data. If nothing changed, do nothing.
+
+on:
+  schedule:
+    - cron: "0 3 * * 1" # Mondays, 03:00 UTC
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: sync-oss
+  cancel-in-progress: true
+
+env:
+  BRANCH: chore/oss-sync
+
+jobs:
+  sync:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fetch contributions from GitHub
+        run: node scripts/sync-oss.mjs
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      # Star counts and descriptions drift every week. Only a change in the
+      # contributions themselves is worth a pull request.
+      - name: Check for changes
+        id: check
+        run: |
+          pick='[.projects[] | {repo, opened, merged, lastMerged}] | sort_by(.repo)'
+          totals='"\([.projects[].opened] | add // 0) opened, \([.projects[].merged] | add // 0) merged, \([.projects[] | select(.merged > 0)] | length) projects listed"'
+          before=$(git show HEAD:src/data/oss.json | jq -c "$pick")
+          after=$(jq -c "$pick" src/data/oss.json)
+          if [ "$before" = "$after" ]; then
+            echo "No change in contributions."
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+            exit 0
+          fi
+          echo "changed=true" >> "$GITHUB_OUTPUT"
+          echo "before=$(git show HEAD:src/data/oss.json | jq -r "$totals")" >> "$GITHUB_OUTPUT"
+          echo "after=$(jq -r "$totals" src/data/oss.json)" >> "$GITHUB_OUTPUT"
+
+      - name: Open or update the pull request
+        if: steps.check.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          BEFORE: ${{ steps.check.outputs.before }}
+          AFTER: ${{ steps.check.outputs.after }}
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git checkout -B "$BRANCH"
+          git add src/data/oss.json public/oss
+          git commit -m "Update open source contributions"
+          git push --force origin "$BRANCH"
+
+          body=$(printf 'The weekly check found a change in open source contributions.\n\n| | Totals |\n|---|---|\n| Before | %s |\n| After | %s |\n\nMerging this deploys the site with the new numbers.' "$BEFORE" "$AFTER")
+          if [ -n "$(gh pr list --head "$BRANCH" --state open --json number -q '.[0].number')" ]; then
+            gh pr edit "$BRANCH" --body "$body"
+          else
+            gh pr create --base main --head "$BRANCH" --title "Update open source contributions" --body "$body"
+          fi

@@ -1,5 +1,6 @@
 // Refreshes src/data/oss.json and the project icons in public/oss from GitHub.
-// Run with `npm run sync:oss`. The deploy workflow runs it before every build.
+// Run with `npm run sync:oss`. The weekly sync workflow runs it and opens a pull
+// request when the contributions changed.
 // If GitHub cannot be reached, the committed data is left as it is.
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, resolve } from "node:path";
