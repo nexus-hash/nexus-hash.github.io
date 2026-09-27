@@ -14,13 +14,19 @@ interface Span {
   live: boolean;
 }
 
-/** "YYYY-MM" → absolute month index. */
-function toIdx(ym: string): number {
-  const [y, mo] = ym.split("-").map(Number);
-  return y * 12 + (mo - 1);
+/** "YYYY-MM" or "YYYY-MM-DD" → month index, fractional when a day is given. */
+function toIdx(date: string): number {
+  const [y, mo, d] = date.split("-").map(Number);
+  return y * 12 + (mo - 1) + (d ? (d - 1) / 30 : 0);
 }
 
-function duration(months: number): string {
+/** Exclusive end: a bare month runs through its last day, a full date ends on that day. */
+function toEnd(date: string): number {
+  return date.length > 7 ? toIdx(date) : toIdx(date) + 1;
+}
+
+function duration(span: number): string {
+  const months = Math.max(1, Math.round(span));
   const y = Math.floor(months / 12);
   const mo = months % 12;
   if (y && mo) return `${y}y ${mo}m`;
@@ -50,11 +56,11 @@ export default function Trace() {
         entry,
         role,
         start: toIdx(role.start),
-        end: role.end ? toIdx(role.end) : nowIdx,
+        end: role.end ? toEnd(role.end) : nowIdx + 1,
         live: !role.end,
       }))
     );
-    const rangeStart = Math.min(...spans.map((s) => s.start));
+    const rangeStart = Math.floor(Math.min(...spans.map((s) => s.start)));
     const total = nowIdx + 1 - rangeStart;
     const ticks: { label: string; left: number }[] = [];
     for (let idx = Math.ceil(rangeStart / 12) * 12; idx <= nowIdx; idx += 12) {
@@ -68,7 +74,7 @@ export default function Trace() {
 
   const place = (start: number, end: number) => ({
     left: `${((Math.max(start, rangeStart) - rangeStart) / total) * 100}%`,
-    width: `${((end + 1 - Math.max(start, rangeStart)) / total) * 100}%`,
+    width: `${((end - Math.max(start, rangeStart)) / total) * 100}%`,
   });
 
   const laneStyle = {
@@ -77,7 +83,7 @@ export default function Trace() {
   };
 
   const eduStart = toIdx(education.start);
-  const eduEnd = toIdx(education.end);
+  const eduEnd = toEnd(education.end);
   const totalMonths = nowIdx + 1 - rangeStart;
 
   return (
@@ -128,7 +134,7 @@ export default function Trace() {
                     .filter((s) => s.entry.id === entry.id)
                     .map((s, i) => {
                       const pos = place(s.start, s.end);
-                      const tiny = s.end + 1 - s.start < 12; // under a year: too narrow for a label
+                      const tiny = s.end - s.start < 12; // under a year: too narrow for a label
                       return (
                         <m.button
                           key={s.key}
@@ -172,7 +178,7 @@ export default function Trace() {
                 >
                   <span className="trace-index-title">{s.role.title}</span>
                   <span className="trace-index-co">{s.entry.company}</span>
-                  <span className="trace-index-dur">{duration(s.end + 1 - s.start)}</span>
+                  <span className="trace-index-dur">{duration(s.end - s.start)}</span>
                 </button>
               ))}
             </div>
@@ -191,7 +197,7 @@ export default function Trace() {
                       span <b>{selected.key}</b>
                     </span>
                     <span>{selected.role.dates ?? selected.entry.dates}</span>
-                    <span>{duration(selected.end + 1 - selected.start)}</span>
+                    <span>{duration(selected.end - selected.start)}</span>
                     {selected.live && <b>running</b>}
                   </p>
                   <h3>

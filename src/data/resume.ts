@@ -2,9 +2,9 @@ export interface ExperienceRole {
   title: string;
   stack: string;
   dates?: string;
-  /** "YYYY-MM". Drives the span position in the career trace. */
+  /** "YYYY-MM" or "YYYY-MM-DD". Drives the span position in the career trace. */
   start: string;
-  /** "YYYY-MM"; omit for a role that is still running. */
+  /** "YYYY-MM" (through the end of that month) or "YYYY-MM-DD"; omit for a role that is still running. */
   end?: string;
   bullets: string[];
 }
@@ -48,7 +48,7 @@ export const experience: ExperienceEntry[] = [
         title: "Software Engineer",
         stack: "Vert.x · Spring · Kafka · SQL",
         dates: "Jun 2023 — Jun 2025",
-        start: "2023-06",
+        start: "2023-06-13",
         end: "2025-06",
         bullets: [
           "Worked on the PACE agentic platform, automating 20% of org-wide Jira issues to boost developer throughput.",
@@ -60,10 +60,9 @@ export const experience: ExperienceEntry[] = [
       {
         title: "Software Development Intern",
         stack: "Java · Vert.x · SQL",
-        // NOTE: intern dates are an assumption (not in the original résumé data) — correct if wrong.
-        dates: "Jan 2023 — May 2023",
+        dates: "Jan 2023 — Jun 2023",
         start: "2023-01",
-        end: "2023-05",
+        end: "2023-06-13",
         bullets: [
           "Developed an on-demand settlement generation API that decoupled Visa support workflows from engineering, cutting delivery time for custom requests.",
         ],
@@ -191,83 +190,8 @@ export const projects: Project[] = [
   },
 ];
 
-export interface Contribution {
-  repo: string;
-  /** Formatted star count, e.g. "15.3K". */
-  stars: string;
-  language: string;
-  number: number;
-  title: string;
-  summary: string;
-  status: "merged" | "open" | "in-progress";
-  date: string;
-  diff?: { add: number; del: number };
-  url: string;
-  /** The upstream issue this work addresses. */
-  issue?: { number: number; url: string };
-}
-
-/** Upstream contributions, newest first. Status labels: merged / open (PR up) / in-progress (issue triaged, PR being redone). */
-export const openSource: Contribution[] = [
-  {
-    repo: "jupyterlab/jupyterlab",
-    stars: "15.3K",
-    language: "TypeScript",
-    number: 19817,
-    title: "Stop xterm.js from detecting the browser as Node",
-    summary:
-      "The webpack process shim sets process.title, which makes xterm.js think it runs in Node and skip navigator.platform — so isMac is false and Option+digit, | and {} stop working in the macOS terminal. Fixes the detection at the bundle level.",
-    status: "open",
-    date: "Sep 2026",
-    diff: { add: 64, del: 0 },
-    url: "https://github.com/jupyterlab/jupyterlab/pull/19817",
-    issue: { number: 16489, url: "https://github.com/jupyterlab/jupyterlab/issues/16489" },
-  },
-  {
-    repo: "jupyterlab/jupyter-builder",
-    stars: "15",
-    language: "TypeScript",
-    number: 185,
-    title: "Provide a process shim without title",
-    summary:
-      "Companion to the xterm fix, at the build-tool layer: ships a process polyfill that doesn't set title, so every extension bundle built with @jupyter/builder gets correct platform detection for free.",
-    status: "open",
-    date: "Sep 2026",
-    diff: { add: 17, del: 2 },
-    url: "https://github.com/jupyterlab/jupyter-builder/pull/185",
-    issue: { number: 16489, url: "https://github.com/jupyterlab/jupyterlab/issues/16489" },
-  },
-  {
-    repo: "processing/p5.js",
-    stars: "24K",
-    language: "JavaScript",
-    number: 9208,
-    title: "loadFont() drops every glyph for variable fonts with short gvar offsets",
-    summary:
-      "Root-caused Typr's gvar parser reading all glyph-variation offsets as 4-byte values and ignoring the flags bit for the 2-byte form. Most Google variable fonts use the short form, so the whole table misaligned. Fix proposed; PR being redone against the triaged issue per maintainer process.",
-    status: "in-progress",
-    date: "Sep 2026",
-    diff: { add: 110, del: 9 },
-    url: "https://github.com/processing/p5.js/issues/9208",
-    issue: { number: 7486, url: "https://github.com/processing/p5.js/issues/7486" },
-  },
-  {
-    repo: "jupyterlab/jupyterlab",
-    stars: "15.3K",
-    language: "TypeScript",
-    number: 19714,
-    title: "Defer Tab to the completer only when it's actually bound",
-    summary:
-      "Tab was hijacked by autocomplete even after users rebound the completer shortcut, so they couldn't insert a tab. Added a command-registry editor extension so the CodeMirror keymap checks the live binding before deferring.",
-    status: "merged",
-    date: "Sep 2026",
-    diff: { add: 383, del: 4 },
-    url: "https://github.com/jupyterlab/jupyterlab/pull/19714",
-    issue: { number: 16164, url: "https://github.com/jupyterlab/jupyterlab/issues/16164" },
-  },
-];
-
-export const openSourceSearchUrl = "https://github.com/search?q=is%3Apr+author%3Anexus-hash&type=pullrequests";
+/** Open source numbers live in oss.json, which `npm run sync:oss` refreshes from GitHub. */
+export const openSourceSearchUrl = "https://github.com/search?q=is%3Apr+author%3Anexus-hash+-user%3Anexus-hash&type=pullrequests";
 
 export const education = {
   school: "Vellore Institute of Technology",
@@ -279,8 +203,8 @@ export const education = {
 
 export const headline = {
   role: "Senior Software Engineer, Visa",
-  statement: "I move money at scale, and build the agents that keep it moving.",
-  lede: "Backend engineer working on distributed payment infrastructure and agentic AI. Three years at Visa across settlement, event processing and developer tooling.",
+  statement: "I take systems apart to see how they work, then build better ones.",
+  lede: "Senior Software Engineer at Visa, where I help move money at scale and build the AI agents that keep it moving. Outside work I fix bugs upstream in open source and build Dimensys, which teaches system design in 3D.",
   availability: "Open to conversations",
 };
 
@@ -299,6 +223,23 @@ export const flowStages = [
   { id: "stream", label: "Kafka", note: "100M+/day" },
   { id: "settle", label: "Settlement", note: "10x faster" },
   { id: "agents", label: "AI triage", note: "1M+ logs/s" },
+];
+
+/**
+ * The train on the right-hand rail: the engine plus one coach per section.
+ * `id` is the section's element id. `screen` is the content the coach is wired
+ * to: its two right-hand corners anchor the beam, and the rays carry on across
+ * the page from there, which is what lights the title above it. `tuck` names a
+ * rounded box, if any, so the light can slide under its corners.
+ */
+export const trainStops: { id: string; name: string; screen: string; tuck?: string }[] = [
+  { id: "top", name: "Soumya", screen: "#top .wrap" },
+  { id: "impact", name: "Impact", screen: "#impact .wrap" },
+  { id: "experience", name: "Experience", screen: "#experience .trace", tuck: "#experience .trace" },
+  { id: "projects", name: "Projects", screen: "#projects .feature", tuck: "#projects .feature-shot" },
+  { id: "open-source", name: "Open source", screen: "#open-source .os" },
+  { id: "skills", name: "Skills", screen: "#skills .manifest" },
+  { id: "contact", name: "Contact", screen: "#contact .wrap" },
 ];
 
 export const contact = {

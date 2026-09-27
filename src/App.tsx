@@ -1,6 +1,7 @@
 import { useCallback, useState } from "react";
 import TopBar from "./components/TopBar";
 import Hero from "./components/Hero";
+import Impact from "./components/Impact";
 import Trace from "./components/Trace";
 import Projects from "./components/Projects";
 import OpenSource from "./components/OpenSource";
@@ -8,6 +9,7 @@ import Skills from "./components/Skills";
 import Contact from "./components/Contact";
 import Footer from "./components/Footer";
 import CommandPalette from "./components/CommandPalette";
+import TrainRail from "./components/TrainRail";
 import { useTheme } from "./hooks/useTheme";
 
 export default function App() {
@@ -26,6 +28,7 @@ export default function App() {
 
       <main id="main">
         <Hero />
+        <Impact />
         <Trace />
         <Projects />
         <OpenSource />
@@ -34,6 +37,8 @@ export default function App() {
       </main>
 
       <Footer onOpenPalette={openPalette} />
+
+      <TrainRail />
 
       <CommandPalette
         open={paletteOpen}
