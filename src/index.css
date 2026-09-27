@@ -954,6 +954,7 @@ kbd {
 .rail-stripe { stroke: var(--sig); stroke-width: 1.8; fill: none; }
 .rail-tag { font-family: var(--font-body); font-size: 11px; font-weight: 600; fill: #3a3a36; letter-spacing: 0.04em; }
 .rail-livery { font-family: var(--font-body); font-size: 14px; font-weight: 700; fill: #3a3a36; letter-spacing: 0.14em; }
+.rail-lamp-off { fill: #3a3a36; stroke: #000; stroke-opacity: 0.25; stroke-width: 0.6; }
 .rail-window { fill: var(--sig); opacity: 0.22; transition: opacity 0.35s var(--ease); }
 .rail-car.is-on .rail-window { opacity: 1; filter: drop-shadow(0 0 5px var(--sig)); }
 .rail-charge-0 { stop-color: var(--sig); stop-opacity: 0.42; }

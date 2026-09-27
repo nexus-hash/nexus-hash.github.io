@@ -3,7 +3,8 @@ import { trainStops } from "../data/resume";
 
 /*
  * The train rail: a fixed maglev guideway down the right edge with a white
- * bullet train seen from above, nose pointing up. The track never moves.
+ * bullet train seen from above, nose pointing up, with a second engine closing
+ * the far end, its headlights off. The track never moves.
  * Scrolling down drives the train up the track, one car per section; the car
  * level with the projection line lights a side window and projects onto its
  * section. Two rays leave the window, pass through the section's top-right
@@ -39,7 +40,8 @@ interface Projection {
 }
 
 const N = trainStops.length;
-const LENGTH = EN + (N - 1) * PITCH;
+// an engine at each end: the last car is a second engine, facing the other way
+const LENGTH = EN + (N - 1) * PITCH + (EN - L);
 const VIEW = { x: -PADX, y: -AHEAD, w: W + PADX * 2, h: AHEAD + LENGTH + 30 };
 
 /** Top edge (front) of car i. The engine is car 0 with its nose at y = 0. */
@@ -397,7 +399,7 @@ export default function TrainRail() {
         {/* coaches, last first so each overlaps the gangway behind it */}
         {trainStops
           .map((s, i) => ({ s, i }))
-          .slice(1)
+          .slice(1, -1)
           .reverse()
           .map(({ s, i }) => {
             const y = carTop(i);
@@ -421,6 +423,32 @@ export default function TrainRail() {
               </g>
             );
           })}
+
+        {/* the rear engine closes the train: same cab, facing back, headlights off */}
+        <g
+          className={`rail-car${near === N - 1 ? " is-on" : ""}`}
+          transform={`translate(0 ${carTop(N - 1)})`}
+          onClick={() => go(N - 1)}
+        >
+          <rect x="11" y={-G} width={W - 22} height={G} fill="#1B1B19" />
+          <g transform={`translate(0 ${EN}) scale(1 -1)`}>
+            <path
+              d={`M26 6 Q32 -2 38 6 C52 28 64 70 64 118 V${EN - 9} Q64 ${EN} 55 ${EN} H9 Q0 ${EN} 0 ${EN - 9} V118 C0 70 12 28 26 6 Z`}
+              fill="url(#rail-roof)"
+            />
+            <SideGlass from={126} to={EN - 16} />
+            <path className="rail-stripe" d={`M12 ${EN} V118 C12 70 22 34 31 12 M52 ${EN} V118 C52 70 42 34 33 12`} />
+            <path d="M10 96 C12 64 21 40 32 31 C43 40 52 64 54 96 C50 106 14 106 10 96 Z" fill="url(#rail-screen)" />
+            <path d="M17 92 C24 97 40 97 47 92" stroke="#fff" strokeOpacity="0.25" strokeWidth="1.6" fill="none" />
+            <circle className="rail-lamp-off" cx="26.5" cy="12" r="2.6" />
+            <circle className="rail-lamp-off" cx="37.5" cy="12" r="2.6" />
+          </g>
+          <RoofUnit y={34} />
+          <text className="rail-tag" textAnchor="middle" transform={`translate(${W / 2 + 4} ${WIN}) rotate(-90)`}>
+            {trainStops[N - 1].name}
+          </text>
+          <rect className="rail-window" x="1.4" y={WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
+        </g>
 
         {/* the engine: medium-sharp nose, wraparound windscreen, twin headlights */}
         <g className={`rail-car${near === 0 ? " is-on" : ""}`} onClick={() => go(0)}>
