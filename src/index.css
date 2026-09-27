@@ -990,7 +990,6 @@ kbd {
 .rail-stripe { stroke: var(--sig); stroke-width: 1.3; fill: none; }
 .rail-beam { filter: blur(5px); opacity: 0.75; }
 .rail-lamp-on { fill: #fff; filter: drop-shadow(0 0 3px #fff); }
-.rail-tag { font-family: var(--font-body); font-size: 11px; font-weight: 600; fill: var(--t-text); letter-spacing: 0.04em; }
 .rail-livery { font-family: var(--font-body); font-size: 14px; font-weight: 700; fill: var(--t-text); letter-spacing: 0.14em; }
 .rail-lamp-off { fill: #4a4944; }
 .tf-door { fill: var(--t-door); }
@@ -1213,3 +1212,19 @@ kbd {
 :root[data-theme="light"] .feature-shot-frame { background: #fff; }
 :root[data-theme="light"] .shot-light { display: block; }
 :root[data-theme="light"] .shot-dark { display: none; }
+
+/* The section's name, projected into the beam as a watermark. It lives in the
+   same layer as the light, so it dims and flickers with it. */
+.rail-mark {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--sig);
+  fill-opacity: 0.34;
+  filter: blur(0.6px);
+  transition: opacity 0.3s var(--ease);
+  pointer-events: none;
+  user-select: none;
+}
+:root[data-theme="light"] .rail-mark { fill-opacity: 0.2; }

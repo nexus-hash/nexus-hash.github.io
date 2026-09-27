@@ -11,7 +11,8 @@ import { trainStops } from "../data/resume";
  * and bottom-right corners, and carry on across the page, fading to the left.
  * The light stays pinned to those corners, so part of it is off screen when a
  * corner is. It is painted behind the page content: titles sit in the light,
- * while tables and panels are solid and cover it. Dust drifts inside the beam.
+ * while tables and panels are solid and cover it. Dust drifts inside the beam,
+ * and the section's name is projected into it as a watermark.
  *
  * Every section after the first is dark until its light is on. When the light
  * strikes, the section flickers into view; when it cuts out, the section
@@ -181,6 +182,8 @@ export default function TrainRail() {
   const washRef = useRef<SVGPolygonElement>(null);
   const washFadeRef = useRef<SVGLinearGradientElement>(null);
   const washMidRef = useRef<SVGStopElement>(null);
+  const markRef = useRef<SVGTextElement>(null);
+  const clipRef = useRef<SVGPolygonElement>(null);
   const motesRef = useRef<HTMLCanvasElement>(null);
   const grainRef = useRef<HTMLDivElement>(null);
   const patternRef = useRef<SVGPatternElement>(null);
@@ -199,6 +202,8 @@ export default function TrainRail() {
     const wash = washRef.current;
     const washFade = washFadeRef.current;
     const washMid = washMidRef.current;
+    const mark = markRef.current;
+    const clip = clipRef.current;
     const canvas = motesRef.current;
     if (!dock || !track || !train || !show || !cone || !fade || !tip || !tipFade || !wash || !washFade || !washMid || !canvas)
       return;
@@ -267,8 +272,19 @@ export default function TrainRail() {
     show.addEventListener("animationend", strikeEnd);
     tip.addEventListener("animationend", strikeEnd);
 
+    // The section's name, projected into the beam as a watermark.
+    let markLen = 1; // length of the current name at a 100px font size
+    function name(i: number) {
+      if (!mark) return;
+      mark.textContent = trainStops[i].name;
+      mark.style.fontSize = "100px";
+      markLen = Math.max(1, mark.getComputedTextLength());
+    }
+    name(0);
+
     /** Move the light from one section to another, flickering both. */
     function relight(to: number) {
+      name(to);
       rooms[lit]?.setAttribute("data-lamp", "off");
       rooms[to]?.setAttribute("data-lamp", "on");
       lit = to;
@@ -350,7 +366,29 @@ export default function TrainRail() {
         washFade!.setAttribute("x2", String(faceX));
         washMid!.setAttribute("offset", String((sx - left) / (faceX - left)));
         next = { faceX, wy, half, sx, top: r.top, bottom: r.bottom, left, strength: focus };
+
+        // The watermark stands in the gap between the content and the train, reading
+        // downwards, centred on the part of the beam that is on screen and sized to fit it.
+        const gap = faceX - sx;
+        const mx = sx + gap * 0.32;
+        // measure the room at the side of the letters nearest the train, where the beam is narrowest
+        const mt = 1 - 0.46;
+        const from = Math.max(dockTop, wy - half + (r.top - (wy - half)) * mt);
+        const to = Math.min(window.innerHeight, wy + half + (r.bottom - (wy + half)) * mt);
+        const room = to - from;
+        const size = Math.min(gap * 0.28, 84, ((room * 0.88) / markLen) * 100);
+        if (mark && clip) {
+          clip.setAttribute("points", wash!.getAttribute("points") ?? "");
+          if (gap > 90 && size >= 14) {
+            mark.style.fontSize = `${size}px`;
+            mark.setAttribute("transform", `translate(${mx} ${(from + to) / 2}) rotate(90)`);
+            mark.style.opacity = "1";
+          } else {
+            mark.style.opacity = "0";
+          }
+        }
       }
+      if (!next && mark) mark.style.opacity = "0";
       wash!.style.opacity = next ? "1" : "0";
       cone!.style.opacity = next ? "0" : "1";
       show!.classList.toggle("is-projecting", Boolean(next));
@@ -445,6 +483,15 @@ export default function TrainRail() {
       </defs>
       <polygon ref={washRef} className="rail-wash" fill="url(#rail-wash-fade)" />
       <polygon ref={coneRef} className="rail-cone" fill="url(#rail-fade)" />
+      {/* the section's name, projected as a watermark; it can never leave the beam */}
+      <defs>
+        <clipPath id="rail-mark-clip" clipPathUnits="userSpaceOnUse">
+          <polygon ref={clipRef} />
+        </clipPath>
+      </defs>
+      <g clipPath="url(#rail-mark-clip)">
+        <text ref={markRef} className="rail-mark" textAnchor="middle" dominantBaseline="central" />
+      </g>
     </svg>
     <div className="rail-grain" ref={grainRef} aria-hidden="true" />
     <canvas className="rail-motes" ref={motesRef} aria-hidden="true" />
@@ -551,9 +598,6 @@ export default function TrainRail() {
                 <path className="rail-stripe" d={`M8.6 0 V${L} M${W - 8.6} 0 V${L}`} />
                 <RoofUnit y={26} />
                 <RoofUnit y={L - 78} />
-                <text className="rail-tag" textAnchor="middle" transform={`translate(${W / 2 + 4} ${WIN}) rotate(-90)`}>
-                  {s.name}
-                </text>
                 <rect className="rail-window" x="0.6" y={WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
               </g>
             );
@@ -569,9 +613,6 @@ export default function TrainRail() {
           <g transform={`translate(0 ${EN}) scale(1 -1)`}>
             <Cab lamps={false} />
           </g>
-          <text className="rail-tag" textAnchor="middle" transform={`translate(${W / 2 + 4} ${WIN}) rotate(-90)`}>
-            {trainStops[N - 1].name}
-          </text>
           <rect className="rail-window" x="0.6" y={WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
         </g>
 
