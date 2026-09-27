@@ -93,6 +93,10 @@
 
 * { box-sizing: border-box; }
 html { scroll-behavior: smooth; }
+/* The train is the scroll indicator, so the page scrollbar is hidden everywhere.
+   Scrolling itself is untouched: wheel, touch, keyboard and trackpad all work. */
+html, body { scrollbar-width: none; -ms-overflow-style: none; }
+html::-webkit-scrollbar, body::-webkit-scrollbar { display: none; width: 0; height: 0; }
 @media (prefers-reduced-motion: reduce) {
   html { scroll-behavior: auto; }
   *, *::before, *::after {
@@ -310,10 +314,10 @@ kbd {
 .hero h1 {
   font-family: var(--font-display);
   font-weight: 400;
-  font-size: clamp(2.75rem, 8.2vw, 7rem);
-  line-height: 0.98;
+  font-size: clamp(2.5rem, 6.6vw, 6.25rem);
+  line-height: 1;
   letter-spacing: -0.035em;
-  max-width: 18ch;
+  max-width: 24ch;
 }
 .hero h1 em { font-style: italic; color: var(--accent); }
 .hero h1 .line { display: block; overflow: hidden; padding-bottom: 0.08em; }
@@ -326,7 +330,7 @@ kbd {
   gap: 32px;
   align-items: end;
 }
-.hero-lede { font-size: clamp(1.0625rem, 1.5vw, 1.25rem); color: var(--ink-2); max-width: 48ch; line-height: 1.6; }
+.hero-lede { font-size: clamp(1.0625rem, 1.5vw, 1.25rem); color: var(--ink-2); max-width: 56ch; line-height: 1.6; }
 .hero-lede strong { color: var(--ink); font-weight: 500; }
 .hero-links { display: flex; flex-wrap: wrap; gap: 12px 26px; justify-content: flex-end; font-size: 0.9375rem; }
 @media (max-width: 760px) {

@@ -8,13 +8,12 @@ import { contact, headline } from "../data/resume";
 // `headline.statement` (used as the accessible label).
 const LINES: ReactNode[] = [
   <>
-    I help move <em>money</em>
+    I take systems <em>apart</em>
   </>,
-  <>at scale, and build</>,
+  <>to see how they work,</>,
   <>
-    the <em>agents</em> that
+    then build <em>better</em> ones.
   </>,
-  <>keep it moving.</>,
 ];
 
 export default function Hero() {

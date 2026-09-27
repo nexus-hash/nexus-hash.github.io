@@ -278,8 +278,8 @@ export const education = {
 
 export const headline = {
   role: "Senior Software Engineer, Visa",
-  statement: "I help move money at scale, and build the agents that keep it moving.",
-  lede: "Backend engineer working on distributed payment infrastructure and agentic AI. Three years at Visa across settlement, event processing and developer tooling.",
+  statement: "I take systems apart to see how they work, then build better ones.",
+  lede: "Senior Software Engineer at Visa, where I help move money at scale and build the AI agents that keep it moving. Outside work I fix bugs upstream in open source and build Dimensys, which teaches system design in 3D.",
   availability: "Open to conversations",
 };
 
