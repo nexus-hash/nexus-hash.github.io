@@ -1044,6 +1044,48 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .rail-show.is-projecting { animation: none; }
 }
+
+/* A section is dark until its light is on. It flickers in when the light
+   strikes and flickers out when the light cuts. Only where the train runs. */
+@media (min-width: 720px) {
+  [data-lamp="dark"] > .wrap { opacity: 0; }
+  [data-lamp="off"] > .wrap { opacity: 0; animation: lamp-off 0.5s linear both; }
+  [data-lamp="on"] > .wrap { animation: lamp-on 0.85s linear 0.12s both; }
+  .rail-show.is-striking, .rail-tip polygon.is-striking { animation: lamp-strike 0.85s linear; }
+}
+@keyframes lamp-on {
+  0% { opacity: 0; }
+  8% { opacity: 0.85; }
+  14% { opacity: 0.08; }
+  26% { opacity: 0.08; }
+  32% { opacity: 1; }
+  40% { opacity: 0.2; }
+  52% { opacity: 0.85; }
+  58% { opacity: 0.45; }
+  70%, 100% { opacity: 1; }
+}
+@keyframes lamp-off {
+  0% { opacity: 1; }
+  12% { opacity: 0.2; }
+  24% { opacity: 0.9; }
+  40% { opacity: 0.1; }
+  55% { opacity: 0.55; }
+  70%, 100% { opacity: 0; }
+}
+/* the beam itself: no end frame, so it settles back to whatever brightness it has */
+@keyframes lamp-strike {
+  0% { opacity: 0; }
+  8% { opacity: 0.8; }
+  14% { opacity: 0.05; }
+  26% { opacity: 0.05; }
+  32% { opacity: 0.9; }
+  40% { opacity: 0.15; }
+  52% { opacity: 0.7; }
+  58% { opacity: 0.35; }
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-lamp="off"] > .wrap, [data-lamp="on"] > .wrap { animation: none; transition: opacity 0.2s linear; }
+}
 .rail-fade-0 { stop-color: var(--sig); stop-opacity: 0.1; }
 .rail-fade-1 { stop-color: var(--sig); stop-opacity: 0.55; }
 @media (prefers-reduced-motion: reduce) {

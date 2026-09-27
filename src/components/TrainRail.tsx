@@ -13,6 +13,11 @@ import { trainStops } from "../data/resume";
  * corner is. It is painted behind the page content: titles sit in the light,
  * while tables and panels are solid and cover it. Dust drifts inside the beam.
  *
+ * Every section after the first is dark until its light is on. When the light
+ * strikes, the section flickers into view; when it cuts out, the section
+ * flickers away. That is decided by which window is lit, not by how much of
+ * the section the beam happens to cover.
+ *
  * All geometry below is in "train units"; one car is 64 units wide.
  */
 const W = 64; // car width
@@ -162,6 +167,27 @@ export default function TrainRail() {
       dustRaf = requestAnimationFrame(drawDust);
     }
 
+    // Sections after the first start dark and wait for their light.
+    const rooms = trainStops.map((s, i) => (i === 0 ? null : document.getElementById(s.id)));
+    for (const room of rooms) room?.setAttribute("data-lamp", "dark");
+    let lit = 0;
+    const strikeEnd = (e: Event) => (e.currentTarget as Element).classList.remove("is-striking");
+    show.addEventListener("animationend", strikeEnd);
+    tip.addEventListener("animationend", strikeEnd);
+
+    /** Move the light from one section to another, flickering both. */
+    function relight(to: number) {
+      rooms[lit]?.setAttribute("data-lamp", "off");
+      rooms[to]?.setAttribute("data-lamp", "on");
+      lit = to;
+      if (calm) return;
+      for (const el of [show!, tip!]) {
+        el.classList.remove("is-striking");
+        void el.getBoundingClientRect(); // restart the animation
+        el.classList.add("is-striking");
+      }
+    }
+
     let k = 1; // px per train unit
     let line = 0; // projection line, px from the top of the dock
     let dockTop = 0; // top of the dock in the viewport
@@ -242,6 +268,7 @@ export default function TrainRail() {
       show!.style.opacity = visible ? String(focus) : "0";
       tip!.style.opacity = visible ? String(focus) : "0";
 
+      if (active !== lit) relight(active);
       if (active !== nearRef.current) {
         nearRef.current = active;
         setNear(active);
@@ -293,6 +320,9 @@ export default function TrainRail() {
     return () => {
       cancelAnimationFrame(raf);
       cancelAnimationFrame(dustRaf);
+      for (const room of rooms) room?.removeAttribute("data-lamp");
+      show.removeEventListener("animationend", strikeEnd);
+      tip.removeEventListener("animationend", strikeEnd);
       window.clearTimeout(settle);
       window.removeEventListener("scroll", ask);
       window.removeEventListener("resize", measure);
