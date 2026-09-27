@@ -497,10 +497,14 @@ export default function TrainRail() {
           <feComponentTransfer in="SourceGraphic" result="body">
             <feFuncA type="linear" slope="0.45" />
           </feComponentTransfer>
-          <feMerge>
+          <feMerge result="mark">
             <feMergeNode in="body" />
             <feMergeNode in="edge" />
           </feMerge>
+          {/* the whole watermark is then turned down, so it sits back in the light */}
+          <feComponentTransfer in="mark">
+            <feFuncA type="linear" slope="0.55" />
+          </feComponentTransfer>
         </filter>
       </defs>
       <g clipPath="url(#rail-mark-clip)">
