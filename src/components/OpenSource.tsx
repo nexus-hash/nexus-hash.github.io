@@ -28,7 +28,7 @@ export default function OpenSource() {
               Giving back to the <em>community</em>.
             </>
           }
-          sub="Fixes and improvements for the open source projects I rely on every day."
+          sub="Fixes and improvements to open source projects. I do it because I enjoy the work."
         />
 
         <div className="os">

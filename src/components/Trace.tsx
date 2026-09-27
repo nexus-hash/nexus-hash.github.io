@@ -97,7 +97,6 @@ export default function Trace() {
               A career, read as a <em>trace</em>.
             </>
           }
-          sub="One lane per company, one span per role, on a real time axis. Pick a span to see what happened inside it."
         />
 
         <m.div

@@ -38,6 +38,7 @@ export default function Projects() {
                 >
                   <div className="feature-shot-frame">
                     <img
+                      className={project.imageLight ? "shot-dark" : undefined}
                       src={`${import.meta.env.BASE_URL}${project.image}`}
                       alt={`Screenshot of ${project.name}`}
                       loading="lazy"
@@ -45,6 +46,17 @@ export default function Projects() {
                       width={3200}
                       height={1800}
                     />
+                    {project.imageLight && (
+                      <img
+                        className="shot-light"
+                        src={`${import.meta.env.BASE_URL}${project.imageLight}`}
+                        alt={`Screenshot of ${project.name}`}
+                        loading="lazy"
+                        decoding="async"
+                        width={3200}
+                        height={1800}
+                      />
+                    )}
                   </div>
                   <span className="feature-shot-tag" aria-hidden="true">
                     {host} <ArrowUpRight size={14} />

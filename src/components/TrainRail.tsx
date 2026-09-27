@@ -11,7 +11,8 @@ import { trainStops } from "../data/resume";
  * and bottom-right corners, and carry on across the page, fading to the left.
  * The light stays pinned to those corners, so part of it is off screen when a
  * corner is. It is painted behind the page content: titles sit in the light,
- * while tables and panels are solid and cover it. Dust drifts inside the beam.
+ * while tables and panels are solid and cover it. Dust drifts inside the beam,
+ * and the section's name is projected into it as a watermark.
  *
  * Every section after the first is dark until its light is on. When the light
  * strikes, the section flickers into view; when it cuts out, the section
@@ -54,29 +55,117 @@ const carTop = (i: number) => (i === 0 ? 0 : EN + G + (i - 1) * PITCH);
 /** Centre of the projecting window of car i. */
 const windowY = (i: number) => EN - WIN + i * PITCH;
 
+const NOSE = `M26 6 Q32 -2 38 6 C52 28 64 70 64 118 V${EN - 5} Q64 ${EN} 59 ${EN} H5 Q0 ${EN} 0 ${EN - 5} V118 C0 70 12 28 26 6 Z`;
+
+/** Rooftop air conditioning: a housing with two fan grilles. */
 function RoofUnit({ y }: { y: number }) {
   return (
-    <>
-      <rect x="21" y={y} width="22" height="40" rx="4" fill="#DCD8CD" stroke="#000" strokeOpacity="0.13" />
-      <path d={`M25 ${y + 10} H39 M25 ${y + 20} H39 M25 ${y + 30} H39`} stroke="#000" strokeOpacity="0.13" />
-    </>
-  );
-}
-
-function Pantograph({ y }: { y: number }) {
-  return (
-    <g stroke="#3A3A36" strokeWidth="1.6" fill="none">
-      <path d={`M18 ${y + 12} L32 ${y} L46 ${y + 12} M18 ${y + 38} L32 ${y + 50} L46 ${y + 38} M32 ${y} V${y + 50}`} />
-      <path d={`M8 ${y + 25} H56`} strokeWidth="3" />
+    <g>
+      <rect className="tf-unit ts-seam" x="18" y={y} width="28" height="48" rx="3" strokeOpacity="0.22" strokeWidth="0.6" />
+      <rect className="tf-unit-in" x="20.5" y={y + 2.5} width="23" height="43" rx="2" />
+      {[13, 35].map((dy) => (
+        <g key={dy} transform={`translate(32 ${y + dy})`}>
+          <circle className="tf-metal" r="8" />
+          <circle className="tf-well" r="6.6" />
+          <path className="ts-metal" d="M-6.6 0 H6.6 M0 -6.6 V6.6 M-4.7 -4.7 L4.7 4.7 M-4.7 4.7 L4.7 -4.7" strokeWidth="0.7" />
+          <circle className="tf-hub" r="1.7" />
+        </g>
+      ))}
+      <path className="ts-seam" d={`M20.5 ${y + 24} H43.5`} strokeOpacity="0.2" strokeWidth="0.6" />
     </g>
   );
 }
 
+/** Tinted window bands along both flanks, seen from a steep angle, with pillars. */
 function SideGlass({ from, to }: { from: number; to: number }) {
+  const pillars: number[] = [];
+  for (let y = from + 22; y < to - 8; y += 22) pillars.push(y);
   return (
     <>
-      <path className="rail-glass" d={`M4.6 ${from} V${to}`} />
-      <path className="rail-glass" d={`M${W - 4.6} ${from} V${to}`} />
+      {[1, W - 4.8].map((x) => (
+        <g key={x}>
+          <rect x={x} y={from} width="3.8" height={to - from} rx="1.2" fill="url(#rail-glassfill)" />
+          {pillars.map((y) => (
+            <rect className="tf-pillar" key={y} x={x} y={y} width="3.8" height="1.6" />
+          ))}
+        </g>
+      ))}
+    </>
+  );
+}
+
+/** Roof details every car shares: seams between panels and the rain gutters. */
+function RoofLines({ from, to }: { from: number; to: number }) {
+  const seams: number[] = [];
+  for (let y = from + 40; y < to - 10; y += 44) seams.push(y);
+  return (
+    <g fill="none">
+      {seams.map((y) => (
+        <path className="ts-seam" key={y} d={`M6 ${y} H${W - 6}`} strokeOpacity="0.09" strokeWidth="0.7" />
+      ))}
+      <path className="ts-seam" d={`M7.2 ${from} V${to} M${W - 7.2} ${from} V${to}`} strokeOpacity="0.16" strokeWidth="0.7" />
+    </g>
+  );
+}
+
+/** Doors at both ends of a car: a dark leaf in the flank and a threshold seam across the roof edge. */
+function Doors({ at }: { at: number[] }) {
+  return (
+    <>
+      {at.map((y) => (
+        <g key={y}>
+          <rect className="tf-door" x="0.6" y={y} width="4.4" height="17" rx="1" />
+          <rect className="tf-door" x={W - 5} y={y} width="4.4" height="17" rx="1" />
+          <path className="ts-metal" d={`M0.6 ${y + 8.5} H5 M${W - 5} ${y + 8.5} H${W - 0.6}`} strokeWidth="0.5" />
+        </g>
+      ))}
+    </>
+  );
+}
+
+/** The ribbed bellows between two cars. */
+function Gangway() {
+  return (
+    <g>
+      <rect className="tf-gang" x="13" y={-G - 1} width={W - 26} height={G + 2} />
+      <path className="ts-rib" d={`M13 ${-G + 1.5} H${W - 13} M13 ${-G / 2} H${W - 13} M13 ${-1.5} H${W - 13}`} strokeWidth="0.8" />
+    </g>
+  );
+}
+
+/** A driving car, nose at y = 0. Drawn once and flipped for the rear of the train. */
+function Cab({ lamps }: { lamps: boolean }) {
+  return (
+    <>
+      <path d={NOSE} fill="url(#rail-roof)" />
+      {/* the nose falls away from the roof line towards the tip and the flanks */}
+      <path d={NOSE} fill="url(#rail-nose)" />
+      <RoofLines from={150} to={EN - 4} />
+      <SideGlass from={150} to={EN - 34} />
+      <Doors at={[128, EN - 28]} />
+      <path className="rail-stripe" d={`M8.6 ${EN} V118 C9 72 20 36 31 12 M${W - 8.6} ${EN} V118 C${W - 9} 72 44 36 33 12`} />
+      {/* windscreen: one curved pane, with the sky reflected across it */}
+      <path className="tf-frame" d="M9 98 C11 64 21 40 32 30 C43 40 53 64 55 98 C50 108 14 108 9 98 Z" />
+      <path d="M11 96 C13 65 22 43 32 33 C42 43 51 65 53 96 C49 105 15 105 11 96 Z" fill="url(#rail-screen)" />
+      <path d="M17 88 C19 66 25 50 31 42 C27 56 25 72 25 92 Z" fill="#fff" fillOpacity="0.1" />
+      <path d="M16 96 C24 101 40 101 48 96" stroke="#fff" strokeOpacity="0.22" strokeWidth="1.2" fill="none" />
+      <path className="ts-seam" d="M32 33 V26" strokeOpacity="0.18" strokeWidth="0.7" />
+      {/* coupler hatch in the nose tip */}
+      <path className="ts-seam" d="M27.5 9 Q32 3 36.5 9 Q32 12 27.5 9 Z" fill="none" strokeOpacity="0.28" strokeWidth="0.6" />
+      {/* headlamp clusters */}
+      {[
+        [23.2, 21, 24],
+        [40.8, 21, -24],
+      ].map(([cx, cy, r]) => (
+        <g key={cx} transform={`translate(${cx} ${cy}) rotate(${r})`}>
+          <ellipse className="tf-lamp-house" rx="2.5" ry="5.2" />
+          <ellipse className={lamps ? "rail-lamp-on" : "rail-lamp-off"} rx="1.5" ry="3.9" />
+        </g>
+      ))}
+      {/* cab roof: antenna fairing and the driver's hatch */}
+      <rect className="tf-unit ts-seam" x="28" y="112" width="8" height="14" rx="3" strokeOpacity="0.22" strokeWidth="0.6" />
+      <path className="ts-seam" d="M6 118 H58" strokeOpacity="0.1" strokeWidth="0.7" />
+      <RoofUnit y={EN - 84} />
     </>
   );
 }
@@ -93,6 +182,8 @@ export default function TrainRail() {
   const washRef = useRef<SVGPolygonElement>(null);
   const washFadeRef = useRef<SVGLinearGradientElement>(null);
   const washMidRef = useRef<SVGStopElement>(null);
+  const markRef = useRef<SVGTextElement>(null);
+  const clipRef = useRef<SVGPolygonElement>(null);
   const motesRef = useRef<HTMLCanvasElement>(null);
   const grainRef = useRef<HTMLDivElement>(null);
   const patternRef = useRef<SVGPatternElement>(null);
@@ -111,6 +202,8 @@ export default function TrainRail() {
     const wash = washRef.current;
     const washFade = washFadeRef.current;
     const washMid = washMidRef.current;
+    const mark = markRef.current;
+    const clip = clipRef.current;
     const canvas = motesRef.current;
     if (!dock || !track || !train || !show || !cone || !fade || !tip || !tipFade || !wash || !washFade || !washMid || !canvas)
       return;
@@ -138,6 +231,9 @@ export default function TrainRail() {
       if (w < 720) return; // the train and its dust are hidden on small screens
       const p = proj;
       if (!p) return;
+      // pale dust in the dark, accent-coloured dust on paper
+      const paper = document.documentElement.dataset.theme === "light";
+      ctx.fillStyle = paper ? "#1a3cff" : "#dfe4ff";
       const left = p.left;
       const right = p.faceX;
       const span = Math.max(1, right - left);
@@ -157,6 +253,7 @@ export default function TrainRail() {
         const upper = p.wy - p.half + (p.top - (p.wy - p.half)) * t;
         const lower = p.wy + p.half + (p.bottom - (p.wy + p.half)) * t;
         if (y < upper || y > lower) continue;
+        if (paper && x < p.sx) continue; // on paper the light stops short of the content, and so does its dust
         const alpha = p.strength * (0.12 + near * 0.6) * twinkle;
         ctx.globalAlpha = Math.max(0, Math.min(1, alpha));
         ctx.beginPath();
@@ -175,8 +272,19 @@ export default function TrainRail() {
     show.addEventListener("animationend", strikeEnd);
     tip.addEventListener("animationend", strikeEnd);
 
+    // The section's name, projected into the beam as a watermark.
+    let markLen = 1; // length of the current name at a 100px font size
+    function name(i: number) {
+      if (!mark) return;
+      mark.textContent = trainStops[i].name;
+      mark.style.fontSize = "100px";
+      markLen = Math.max(1, mark.getComputedTextLength());
+    }
+    name(0);
+
     /** Move the light from one section to another, flickering both. */
     function relight(to: number) {
+      name(to);
       rooms[lit]?.setAttribute("data-lamp", "off");
       rooms[to]?.setAttribute("data-lamp", "on");
       lit = to;
@@ -258,7 +366,29 @@ export default function TrainRail() {
         washFade!.setAttribute("x2", String(faceX));
         washMid!.setAttribute("offset", String((sx - left) / (faceX - left)));
         next = { faceX, wy, half, sx, top: r.top, bottom: r.bottom, left, strength: focus };
+
+        // The watermark stands in the gap between the content and the train, reading
+        // downwards, centred on the part of the beam that is on screen and sized to fit it.
+        const gap = faceX - sx;
+        const mx = sx + gap * 0.32;
+        // measure the room at the side of the letters nearest the train, where the beam is narrowest
+        const mt = 1 - 0.46;
+        const from = Math.max(dockTop, wy - half + (r.top - (wy - half)) * mt);
+        const to = Math.min(window.innerHeight, wy + half + (r.bottom - (wy + half)) * mt);
+        const room = to - from;
+        const size = Math.min(gap * 0.28, 84, ((room * 0.88) / markLen) * 100);
+        if (mark && clip) {
+          clip.setAttribute("points", wash!.getAttribute("points") ?? "");
+          if (gap > 90 && size >= 14) {
+            mark.style.fontSize = `${size}px`;
+            mark.setAttribute("transform", `translate(${mx} ${(from + to) / 2}) rotate(90)`);
+            mark.style.opacity = "1";
+          } else {
+            mark.style.opacity = "0";
+          }
+        }
       }
+      if (!next && mark) mark.style.opacity = "0";
       wash!.style.opacity = next ? "1" : "0";
       cone!.style.opacity = next ? "0" : "1";
       show!.classList.toggle("is-projecting", Boolean(next));
@@ -353,6 +483,33 @@ export default function TrainRail() {
       </defs>
       <polygon ref={washRef} className="rail-wash" fill="url(#rail-wash-fade)" />
       <polygon ref={coneRef} className="rail-cone" fill="url(#rail-fade)" />
+      {/* the section's name, projected as a watermark; it can never leave the beam */}
+      <defs>
+        <clipPath id="rail-mark-clip" clipPathUnits="userSpaceOnUse">
+          <polygon ref={clipRef} />
+        </clipPath>
+        <filter id="rail-mark-fx" x="-10%" y="-10%" width="120%" height="120%">
+          <feMorphology in="SourceAlpha" operator="dilate" radius="0.7" result="outer" />
+          <feMorphology in="SourceAlpha" operator="erode" radius="0.7" result="inner" />
+          <feComposite in="outer" in2="inner" operator="out" result="ring" />
+          <feFlood className="rail-mark-edge" result="ink" />
+          <feComposite in="ink" in2="ring" operator="in" result="edge" />
+          <feComponentTransfer in="SourceGraphic" result="body">
+            <feFuncA type="linear" slope="0.28" />
+          </feComponentTransfer>
+          <feMerge result="mark">
+            <feMergeNode in="body" />
+            <feMergeNode in="edge" />
+          </feMerge>
+          {/* the whole watermark is then turned down, so it sits back in the light */}
+          <feComponentTransfer in="mark">
+            <feFuncA type="linear" slope="0.55" />
+          </feComponentTransfer>
+        </filter>
+      </defs>
+      <g clipPath="url(#rail-mark-clip)">
+        <text ref={markRef} className="rail-mark" textAnchor="middle" dominantBaseline="central" />
+      </g>
     </svg>
     <div className="rail-grain" ref={grainRef} aria-hidden="true" />
     <canvas className="rail-motes" ref={motesRef} aria-hidden="true" />
@@ -402,19 +559,30 @@ export default function TrainRail() {
       >
         <defs>
           <linearGradient id="rail-roof" x1="0" y1="0" x2="1" y2="0">
-            <stop offset="0" stopColor="#B9B5AA" />
-            <stop offset="0.16" stopColor="#EDEAE2" />
-            <stop offset="0.42" stopColor="#FFFFFF" />
-            <stop offset="0.7" stopColor="#F2EFE7" />
-            <stop offset="1" stopColor="#ABA79C" />
+            <stop offset="0" className="tc-roof-0" />
+            <stop offset="0.09" className="tc-roof-1" />
+            <stop offset="0.3" className="tc-roof-2" />
+            <stop offset="0.46" className="tc-roof-3" />
+            <stop offset="0.72" className="tc-roof-4" />
+            <stop offset="0.92" className="tc-roof-5" />
+            <stop offset="1" className="tc-roof-6" />
           </linearGradient>
           <linearGradient id="rail-screen" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor="#34342F" />
-            <stop offset="1" stopColor="#0C0C0B" />
+            <stop offset="0" className="tc-screen-0" />
+            <stop offset="1" className="tc-screen-1" />
+          </linearGradient>
+          <linearGradient id="rail-glassfill" x1="0" y1="0" x2="1" y2="0">
+            <stop offset="0" className="tc-glass-0" />
+            <stop offset="1" className="tc-glass-1" />
+          </linearGradient>
+          <linearGradient id="rail-nose" gradientUnits="userSpaceOnUse" x1="0" y1="0" x2="0" y2="150">
+            <stop offset="0" stopColor="#000" stopOpacity="0.34" />
+            <stop offset="0.45" stopColor="#000" stopOpacity="0.1" />
+            <stop offset="1" stopColor="#000" stopOpacity="0" />
           </linearGradient>
           <linearGradient id="rail-head" x1="0" y1="1" x2="0" y2="0">
-            <stop offset="0" stopColor="#FFFFFF" stopOpacity="0.45" />
-            <stop offset="1" stopColor="#FFFFFF" stopOpacity="0" />
+            <stop offset="0" className="tc-head-0" stopOpacity="0.45" />
+            <stop offset="1" className="tc-head-1" stopOpacity="0" />
           </linearGradient>
           <radialGradient id="rail-charge" cx="0.5" cy="0.5" r="0.5">
             <stop offset="0" className="rail-charge-0" />
@@ -424,7 +592,7 @@ export default function TrainRail() {
 
         {/* the guideway energises around the nose */}
         <ellipse cx={W / 2} cy="40" rx="74" ry="210" fill="url(#rail-charge)" />
-        <path d={`M${W / 2} 4 L-30 ${-AHEAD + 10} L${W + 30} ${-AHEAD + 10} Z`} fill="url(#rail-head)" />
+        <path className="rail-beam" d={`M24 18 L-24 ${-AHEAD + 10} L${W + 24} ${-AHEAD + 10} L40 18 Z`} fill="url(#rail-head)" />
 
         {/* coaches, last first so each overlaps the gangway behind it */}
         {trainStops
@@ -440,63 +608,39 @@ export default function TrainRail() {
                 transform={`translate(0 ${y})`}
                 onClick={() => go(i)}
               >
-                <rect x="11" y={-G} width={W - 22} height={G} fill="#1B1B19" />
-                <rect x="0" y="0" width={W} height={L} rx="9" fill="url(#rail-roof)" />
-                <SideGlass from={16} to={L - 16} />
-                <path className="rail-stripe" d={`M12 0 V${L} M${W - 12} 0 V${L}`} />
-                {i === 1 ? <Pantograph y={28} /> : <RoofUnit y={34} />}
-                <RoofUnit y={L - 72} />
-                <text className="rail-tag" textAnchor="middle" transform={`translate(${W / 2 + 4} ${WIN}) rotate(-90)`}>
-                  {s.name}
-                </text>
-                <rect className="rail-window" x="1.4" y={WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
+                <Gangway />
+                <rect x="0" y="0" width={W} height={L} rx="5" fill="url(#rail-roof)" />
+                <RoofLines from={4} to={L - 4} />
+                <SideGlass from={32} to={L - 32} />
+                <Doors at={[9, L - 26]} />
+                <path className="rail-stripe" d={`M8.6 0 V${L} M${W - 8.6} 0 V${L}`} />
+                <RoofUnit y={26} />
+                <RoofUnit y={L - 78} />
+                <rect className="rail-window" x="0.6" y={WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
               </g>
             );
           })}
 
-        {/* the rear engine closes the train: same cab, facing back, headlights off */}
+        {/* the rear driving car closes the train: same cab, facing back, headlamps off */}
         <g
           className={`rail-car${near === N - 1 ? " is-on" : ""}`}
           transform={`translate(0 ${carTop(N - 1)})`}
           onClick={() => go(N - 1)}
         >
-          <rect x="11" y={-G} width={W - 22} height={G} fill="#1B1B19" />
+          <Gangway />
           <g transform={`translate(0 ${EN}) scale(1 -1)`}>
-            <path
-              d={`M26 6 Q32 -2 38 6 C52 28 64 70 64 118 V${EN - 9} Q64 ${EN} 55 ${EN} H9 Q0 ${EN} 0 ${EN - 9} V118 C0 70 12 28 26 6 Z`}
-              fill="url(#rail-roof)"
-            />
-            <SideGlass from={126} to={EN - 16} />
-            <path className="rail-stripe" d={`M12 ${EN} V118 C12 70 22 34 31 12 M52 ${EN} V118 C52 70 42 34 33 12`} />
-            <path d="M10 96 C12 64 21 40 32 31 C43 40 52 64 54 96 C50 106 14 106 10 96 Z" fill="url(#rail-screen)" />
-            <path d="M17 92 C24 97 40 97 47 92" stroke="#fff" strokeOpacity="0.25" strokeWidth="1.6" fill="none" />
-            <circle className="rail-lamp-off" cx="26.5" cy="12" r="2.6" />
-            <circle className="rail-lamp-off" cx="37.5" cy="12" r="2.6" />
+            <Cab lamps={false} />
           </g>
-          <RoofUnit y={34} />
-          <text className="rail-tag" textAnchor="middle" transform={`translate(${W / 2 + 4} ${WIN}) rotate(-90)`}>
-            {trainStops[N - 1].name}
-          </text>
-          <rect className="rail-window" x="1.4" y={WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
+          <rect className="rail-window" x="0.6" y={WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
         </g>
 
-        {/* the engine: medium-sharp nose, wraparound windscreen, twin headlights */}
+        {/* the leading driving car: medium-sharp nose, headlamps on */}
         <g className={`rail-car${near === 0 ? " is-on" : ""}`} onClick={() => go(0)}>
-          <path
-            d={`M26 6 Q32 -2 38 6 C52 28 64 70 64 118 V${EN - 9} Q64 ${EN} 55 ${EN} H9 Q0 ${EN} 0 ${EN - 9} V118 C0 70 12 28 26 6 Z`}
-            fill="url(#rail-roof)"
-          />
-          <SideGlass from={126} to={EN - 16} />
-          <path className="rail-stripe" d={`M12 ${EN} V118 C12 70 22 34 31 12 M52 ${EN} V118 C52 70 42 34 33 12`} />
-          <path d="M10 96 C12 64 21 40 32 31 C43 40 52 64 54 96 C50 106 14 106 10 96 Z" fill="url(#rail-screen)" />
-          <path d="M17 92 C24 97 40 97 47 92" stroke="#fff" strokeOpacity="0.25" strokeWidth="1.6" fill="none" />
-          <circle cx="26.5" cy="12" r="2.6" fill="#fff" />
-          <circle cx="37.5" cy="12" r="2.6" fill="#fff" />
-          <RoofUnit y={EN - 72} />
+          <Cab lamps />
           <text className="rail-livery" textAnchor="middle" transform={`translate(${W / 2 + 5} ${EN - WIN}) rotate(-90)`}>
             SRT
           </text>
-          <rect className="rail-window" x="1.4" y={EN - WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
+          <rect className="rail-window" x="0.6" y={EN - WIN - WINH / 2} width="6.6" height={WINH} rx="2" />
         </g>
       </svg>
 

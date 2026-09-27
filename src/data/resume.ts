@@ -172,6 +172,8 @@ export interface Project {
   repo?: string;
   /** Path under /public — shown as a framed screenshot in the project card. */
   image?: string;
+  /** The same view in the project's light theme, shown when this site is in light mode. */
+  imageLight?: string;
   status: "live" | "wip" | "archived";
 }
 
@@ -186,6 +188,7 @@ export const projects: Project[] = [
     live: "https://dimensys.vercel.app",
     repo: "https://github.com/nexus-hash/dimensys",
     image: "dimensys.jpg",
+    imageLight: "dimensys-light.jpg",
     status: "live",
   },
 ];
@@ -205,7 +208,6 @@ export const headline = {
   role: "Senior Software Engineer, Visa",
   statement: "I take systems apart to see how they work, then build better ones.",
   lede: "Senior Software Engineer at Visa, where I help move money at scale and build the AI agents that keep it moving. Outside work I fix bugs upstream in open source and build Dimensys, which teaches system design in 3D.",
-  availability: "Open to conversations",
 };
 
 /** Headline outcomes, set as ledger lines in the hero. `source` says where the number comes from. */
@@ -233,7 +235,7 @@ export const flowStages = [
  * rounded box, if any, so the light can slide under its corners.
  */
 export const trainStops: { id: string; name: string; screen: string; tuck?: string }[] = [
-  { id: "top", name: "Soumya", screen: "#top .wrap" },
+  { id: "top", name: "Nexus", screen: "#top .wrap" },
   { id: "impact", name: "Impact", screen: "#impact .wrap" },
   { id: "experience", name: "Experience", screen: "#experience .trace", tuck: "#experience .trace" },
   { id: "projects", name: "Projects", screen: "#projects .feature", tuck: "#projects .feature-shot" },

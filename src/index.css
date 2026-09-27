@@ -39,7 +39,9 @@
   --trackw: calc(var(--car) * 1.5);
   --dock: 0px;
   --bar-h: 61px;
-  color-scheme: light;
+  /* "only" tells browsers that force a dark look onto light pages to leave this one
+     alone: the site has its own dark theme, one click away. */
+  color-scheme: only light;
 }
 @media (min-width: 720px) {
   :root { --dock: calc(var(--trackw) + 20px); }
@@ -298,17 +300,6 @@ kbd {
   margin-bottom: clamp(24px, 3vw, 40px);
 }
 .hero-kicker .mono { color: var(--ink-3); font-size: 0.8125rem; }
-.pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 7px;
-  padding: 4px 11px;
-  border-radius: 999px;
-  font-size: 0.8125rem;
-  color: var(--ok);
-  background: var(--ok-soft);
-}
-.pill i { width: 6px; height: 6px; border-radius: 50%; background: currentColor; animation: pulse 2.4s ease-in-out infinite; }
 @keyframes pulse { 0%, 100% { opacity: 1; } 50% { opacity: 0.35; } }
 
 .hero h1 {
@@ -904,7 +895,8 @@ kbd {
 
 /* ==========================================================================
    TRAIN RAIL — fixed maglev guideway on the right edge, train seen from above.
-   The dock is always dark so the white train reads in both themes.
+   Dark theme: a white train on a dark guideway. Light theme: a black train on a
+   pale guideway. Every colour of both is a token on .rail.
    ========================================================================== */
 .rail {
   --sig: #8ea0ff;
@@ -913,6 +905,34 @@ kbd {
   --slab: #131311;
   --deep: #0a0a09;
   --bone: #f2efe7;
+  --gw-line: 242, 239, 231;
+  --gw-edge: -1px 0 0 rgba(242, 239, 231, 0.12), -24px 0 50px -20px rgba(0, 0, 0, 0.55);
+  --t-shadow: drop-shadow(5px 9px 10px rgba(0, 0, 0, 0.8));
+  --t-text: #3a3a36;
+  --t-unit: #d3d0c6;
+  --t-unit-in: #bfbcb2;
+  --t-metal: #8e8b83;
+  --t-well: #4b4a45;
+  --t-hub: #a9a69d;
+  --t-pillar: #c9c6bc;
+  --t-door: #2b2b28;
+  --t-gang: #1b1b19;
+  --t-rib: #3a3a36;
+  --t-frame: #cfccc2;
+  --t-lamp-house: #1f1f1d;
+  --t-seam: #000;
+  --t-roof-0: #8f8c84;
+  --t-roof-1: #cfcbc1;
+  --t-roof-2: #f6f4ee;
+  --t-roof-3: #ffffff;
+  --t-roof-4: #efece4;
+  --t-roof-5: #c2beb4;
+  --t-roof-6: #85827a;
+  --t-screen-0: #34342f;
+  --t-screen-1: #0c0c0b;
+  --t-glass-0: #0b0c10;
+  --t-glass-1: #262a38;
+  --t-head: #ffffff;
   display: none;
   position: fixed;
   z-index: 40;
@@ -932,15 +952,15 @@ kbd {
   right: 0;
   width: var(--trackw);
   background: var(--deep);
-  box-shadow: -1px 0 0 rgba(242, 239, 231, 0.12), -24px 0 50px -20px rgba(0, 0, 0, 0.55);
+  box-shadow: var(--gw-edge);
 }
 .rail-track svg { position: absolute; inset: 0; display: block; }
 .gw-slab { fill: var(--slab); }
 .gw-channel { fill: var(--deep); }
-.gw-motor { fill: var(--deep); stroke: rgba(242, 239, 231, 0.08); }
-.gw-inner { stroke: rgba(242, 239, 231, 0.16); stroke-width: 1; fill: none; }
-.gw-tie { stroke: rgba(242, 239, 231, 0.2); stroke-width: 1; fill: none; }
-.gw-tie-half { stroke: rgba(242, 239, 231, 0.09); }
+.gw-motor { fill: var(--deep); stroke: rgba(var(--gw-line), 0.08); }
+.gw-inner { stroke: rgba(var(--gw-line), 0.16); stroke-width: 1; fill: none; }
+.gw-tie { stroke: rgba(var(--gw-line), 0.2); stroke-width: 1; fill: none; }
+.gw-tie-half { stroke: rgba(var(--gw-line), 0.09); }
 .gw-node { fill: var(--sig); }
 .gw-chev { stroke: var(--sig); stroke-width: 1.6; fill: none; stroke-linecap: round; stroke-linejoin: round; animation: gw-pulse 2.4s ease-in-out infinite; }
 .gw-chev-1 { animation-delay: 0s; }
@@ -964,14 +984,50 @@ kbd {
   top: 0;
   overflow: visible;
   will-change: transform;
-  filter: drop-shadow(5px 9px 10px rgba(0, 0, 0, 0.8));
+  filter: var(--t-shadow);
 }
 .rail-car { pointer-events: auto; cursor: pointer; }
-.rail-glass { stroke: #151513; stroke-width: 4.6; stroke-dasharray: 21 4; fill: none; }
-.rail-stripe { stroke: var(--sig); stroke-width: 1.8; fill: none; }
-.rail-tag { font-family: var(--font-body); font-size: 11px; font-weight: 600; fill: #3a3a36; letter-spacing: 0.04em; }
-.rail-livery { font-family: var(--font-body); font-size: 14px; font-weight: 700; fill: #3a3a36; letter-spacing: 0.14em; }
-.rail-lamp-off { fill: #3a3a36; stroke: #000; stroke-opacity: 0.25; stroke-width: 0.6; }
+.rail-stripe { stroke: var(--sig); stroke-width: 1.3; fill: none; }
+.rail-beam { filter: blur(5px); opacity: 0.75; }
+.rail-lamp-on { fill: #fff; filter: drop-shadow(0 0 3px #fff); }
+.rail-livery { font-family: var(--font-body); font-size: 14px; font-weight: 700; fill: var(--t-text); letter-spacing: 0.14em; }
+.rail-lamp-off { fill: #4a4944; }
+.tf-door { fill: var(--t-door); }
+.ts-door { stroke: var(--t-door); }
+.tf-frame { fill: var(--t-frame); }
+.ts-frame { stroke: var(--t-frame); }
+.tf-gang { fill: var(--t-gang); }
+.ts-gang { stroke: var(--t-gang); }
+.tf-hub { fill: var(--t-hub); }
+.ts-hub { stroke: var(--t-hub); }
+.tf-lamp-house { fill: var(--t-lamp-house); }
+.ts-lamp-house { stroke: var(--t-lamp-house); }
+.tf-metal { fill: var(--t-metal); }
+.ts-metal { stroke: var(--t-metal); }
+.tf-pillar { fill: var(--t-pillar); }
+.ts-pillar { stroke: var(--t-pillar); }
+.tf-rib { fill: var(--t-rib); }
+.ts-rib { stroke: var(--t-rib); }
+.tf-seam { fill: var(--t-seam); }
+.ts-seam { stroke: var(--t-seam); }
+.tf-unit { fill: var(--t-unit); }
+.ts-unit { stroke: var(--t-unit); }
+.tf-unit-in { fill: var(--t-unit-in); }
+.ts-unit-in { stroke: var(--t-unit-in); }
+.tf-well { fill: var(--t-well); }
+.ts-well { stroke: var(--t-well); }
+.tc-roof-0 { stop-color: var(--t-roof-0); }
+.tc-roof-1 { stop-color: var(--t-roof-1); }
+.tc-roof-2 { stop-color: var(--t-roof-2); }
+.tc-roof-3 { stop-color: var(--t-roof-3); }
+.tc-roof-4 { stop-color: var(--t-roof-4); }
+.tc-roof-5 { stop-color: var(--t-roof-5); }
+.tc-roof-6 { stop-color: var(--t-roof-6); }
+.tc-screen-0 { stop-color: var(--t-screen-0); }
+.tc-screen-1 { stop-color: var(--t-screen-1); }
+.tc-glass-0 { stop-color: var(--t-glass-0); }
+.tc-glass-1 { stop-color: var(--t-glass-1); }
+.tc-head-0, .tc-head-1 { stop-color: var(--t-head); }
 .rail-window { fill: var(--sig); opacity: 0.22; transition: opacity 0.35s var(--ease); }
 .rail-car.is-on .rail-window { opacity: 1; filter: drop-shadow(0 0 5px var(--sig)); }
 .rail-charge-0 { stop-color: var(--sig); stop-opacity: 0.42; }
@@ -1094,3 +1150,82 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .gw-chev { animation: none; opacity: 0.6; }
 }
+
+/* ---- Light theme: the projection ----
+   Pale periwinkle light over warm paper mixes to grey. On paper the beam is a
+   clean tint of the accent instead, with no film grain and no glow behind the
+   headings. It fades out before it reaches the content, so the page stays
+   paper-coloured. */
+:root[data-theme="light"] .rail-show { --sig: var(--accent); }
+:root[data-theme="light"] .rail-fade-0 { stop-opacity: 0.02; } /* all but gone by the time it reaches the text */
+:root[data-theme="light"] .rail-fade-1 { stop-opacity: 0.3; }
+:root[data-theme="light"] .rail-grain { display: none; }
+:root[data-theme="light"] .hero h1,
+:root[data-theme="light"] .section-head h2,
+:root[data-theme="light"] .contact h2,
+:root[data-theme="light"] .feature-title h3 { filter: none; }
+
+/* ---- Light theme: a black train on a pale guideway ---- */
+:root[data-theme="light"] .rail {
+  --sig: #1a3cff;
+  --sig-soft: rgba(26, 60, 255, 0.1);
+  --sig-glow: rgba(26, 60, 255, 0.3);
+  --slab: #ebe7dc;
+  --deep: #ddd8cb;
+  --gw-line: 21, 20, 15;
+  --gw-edge: -1px 0 0 rgba(21, 20, 15, 0.14), -24px 0 50px -24px rgba(21, 20, 15, 0.18);
+  --t-shadow: drop-shadow(4px 8px 9px rgba(21, 20, 15, 0.38));
+  --t-text: #e8e6df;
+  --t-unit: #303034;
+  --t-unit-in: #3c3c41;
+  --t-metal: #74747b;
+  --t-well: #0b0b0d;
+  --t-hub: #5a5a61;
+  --t-pillar: #17171a;
+  --t-door: #3d3d43;
+  --t-gang: #050506;
+  --t-rib: #2c2c30;
+  --t-frame: #4c4c53;
+  --t-lamp-house: #000;
+  --t-seam: #fff;
+  --t-roof-0: #030304;
+  --t-roof-1: #161618;
+  --t-roof-2: #2b2b2f;
+  --t-roof-3: #46464c;
+  --t-roof-4: #29292d;
+  --t-roof-5: #121214;
+  --t-roof-6: #000000;
+  --t-screen-0: #2a3040;
+  --t-screen-1: #07080b;
+  --t-glass-0: #3b4258;
+  --t-glass-1: #6a7496;
+  --t-head: #1a3cff;
+}
+/* the stripes and the lit window stay periwinkle: deep blue would vanish on black */
+:root[data-theme="light"] .rail-train { --sig: #8ea0ff; }
+:root[data-theme="light"] .rail-charge-0 { stop-color: #1a3cff; stop-opacity: 0.16; }
+:root[data-theme="light"] .rail-charge-1 { stop-color: #1a3cff; }
+:root[data-theme="light"] .rail-beam { opacity: 0.5; }
+
+/* Project previews follow the theme: only the matching screenshot is shown, and loaded. */
+.feature-shot .shot-light { display: none; }
+:root[data-theme="light"] .feature-shot-frame { background: #fff; }
+:root[data-theme="light"] .shot-light { display: block; }
+:root[data-theme="light"] .shot-dark { display: none; }
+
+/* The section's name, projected into the beam as a watermark. It lives in the
+   same layer as the light, so it dims and flickers with it. */
+.rail-mark {
+  font-family: var(--font-body);
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  fill: var(--sig);
+  /* the filter thins the fill and traces a solid edge round the silhouette;
+     a plain stroke would also trace the overlapping contours inside the letters */
+  filter: url(#rail-mark-fx);
+  transition: opacity 0.3s var(--ease);
+  pointer-events: none;
+  user-select: none;
+}
+.rail-mark-edge { flood-color: var(--sig); }
