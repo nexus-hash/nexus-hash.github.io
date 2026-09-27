@@ -39,7 +39,9 @@
   --trackw: calc(var(--car) * 1.5);
   --dock: 0px;
   --bar-h: 61px;
-  color-scheme: light;
+  /* "only" tells browsers that force a dark look onto light pages to leave this one
+     alone: the site has its own dark theme, one click away. */
+  color-scheme: only light;
 }
 @media (min-width: 720px) {
   :root { --dock: calc(var(--trackw) + 20px); }
